@@ -35,7 +35,7 @@ class Grid {
 public:
   Grid() {}
 
-  Grid(const Zeni::Point2i &size, const Zeni::Point2i &render_offset)
+  Grid(const Zeni::Point2i &size, const Zeni::Vector2f &render_offset)
     : m_grid(size.y, Row(size.x, TILE_FULL)),
     m_render_offset(render_offset)
   {
@@ -47,6 +47,7 @@ public:
 
   size_t get_height() const {return m_grid.size();}
   size_t get_width() const {return m_grid.empty() ? 0 : m_grid[0].size();}
+  const Zeni::Vector2f & get_render_offset() const {return m_render_offset;}
 
   const Zeni::Point2i & get_spawn_player() const {return m_spawn_player;}
 
@@ -77,7 +78,7 @@ private:
   std::vector<Row> m_grid;
   Zeni::Point2i m_spawn_player;
 
-  Zeni::Point2i m_render_offset;
+  Zeni::Vector2f m_render_offset;
   std::shared_ptr<Zeni::Vertex_Buffer> m_grid_buffer;
 };
 
