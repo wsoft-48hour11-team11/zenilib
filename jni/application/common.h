@@ -15,11 +15,11 @@ enum Power {POWER_EMPTY = 0,
 inline const char * const power_asset(const Power &power) {
   switch(power) {
     case POWER_EMPTY:          return 0;
-    case POWER_BLOOD:          return "power-deathray";
+    case POWER_BLOOD:          return "power-blood";
     case POWER_DEATHRAY:       return "power-deathray";
-    case POWER_SHADOW:         return "power-deathray";
-    case POWER_SPEED:          return "power-deathray";
-    case POWER_TELEPORT:       return "power-deathray";
+    case POWER_SHADOW:         return "power-shadow";
+    case POWER_SPEED:          return "power-speed";
+    case POWER_TELEPORT:       return "power-teleport";
     default:                   assert(!"Power");
                                return 0;
   }

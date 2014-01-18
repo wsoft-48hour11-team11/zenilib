@@ -14,7 +14,17 @@ public:
               STATE_ON_LOWER_RIGHT
              };
 
-  Player() {}
+  Player()
+  : Object(Zeni::Point2f()),
+  jump(false),
+  state(STATE_IN_AIR),
+  left(false),
+  right(false),
+  m_speed(8.0f, 8.0f),
+  m_powers(POWER_LIST_SIZE, true)
+  {
+    m_powers[POWER_EMPTY] = false;
+  }
 
   Player(const Zeni::Point2f &position_)
   : Object(position_),
@@ -28,8 +38,8 @@ public:
     m_powers[POWER_EMPTY] = false;
   }
 
-  std::list<Power> get_powers() const {
-    std::list<Power> powers;
+  std::vector<Power> get_powers() const {
+    std::vector<Power> powers;
     for(int i = 1; i != POWER_LIST_SIZE; ++i) {
       if(m_powers[i])
         powers.push_back(Power(i));

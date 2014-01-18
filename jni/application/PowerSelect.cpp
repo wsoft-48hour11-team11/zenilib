@@ -10,7 +10,7 @@ PowerSelect::PowerSelect(Zeni::Gamestate gamestate, Player* player, PowerSeal* p
 	m_powerseal = powerseal;
 
 	m_cursor_index = 0;
-	m_max_cursor_index = 4;
+	m_max_cursor_index = m_player->get_powers().size() - 1;
 
 	//Set up cursor
 	m_cursor.setColor("green");
@@ -73,7 +73,9 @@ void PowerSelect::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 		//ENTER
 		if (confidence == 1.0)
 		{
-			m_powerseal->setPower(POWER_BLOOD);
+			Power lost_power = m_player->get_powers()[m_cursor_index];
+			m_powerseal->setPower(lost_power);
+			m_player->remove_power(lost_power);
 			get_Game().pop_state();
 		}
 	}
@@ -102,7 +104,8 @@ void PowerSelect::render()
 	{
 		Point2f image_ul = Point2f(base_pos.x + i * 48, base_pos.y);
 		Point2f image_lr = Point2f(image_ul.x + 32, image_ul.y + 32.0f);
-		render_image("power-blood", image_ul, image_lr);
+		vector<Power> pow = m_player->get_powers();
+		render_image(power_asset(m_player->get_powers()[i]), image_ul, image_lr);
 	}
 
 	m_cursor.setPos(Point2f(base_pos.x + m_cursor_index * 48, base_pos.y));
