@@ -6,6 +6,7 @@
 class Player : public Object {
 public:
   enum State {STATE_IN_AIR,
+              STATE_ON_WALL,
               STATE_ON_GROUND,
               STATE_ON_LOWER_LEFT,
               STATE_ON_LOWER_RIGHT

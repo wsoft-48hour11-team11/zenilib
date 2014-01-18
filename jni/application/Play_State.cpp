@@ -163,6 +163,7 @@ void Play_State::step(const float &time_step)
                 m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
                 m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
               }
+              m_player.state = Player::STATE_ON_WALL;
             }
 
             if(push_left > 0.15f && push_right > 0.15f) {
