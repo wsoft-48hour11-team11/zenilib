@@ -1,2 +1,2 @@
-test_level.txt
+levels/wsoft.txt
 test_level.txt

@@ -9,7 +9,9 @@
 #include "common.h"
 
 #include "player.h"
+#include "GameSingleton.h"
 #include "LevelEditor.h"
+
 
 #if defined(_DEBUG) && defined(_WINDOWS)
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -29,13 +31,15 @@ public:
   {
     set_pausable(true);
 
-    m_grid.load("test_level.txt");
+    //m_grid.load("test_level.txt");
+	GameSingleton* sing = GameSingleton::getInstance();
+	m_grid.load(sing->level_list[0]);
 
     m_player = Player(Point2f(m_grid.get_spawn_player().x + 4.5f / 16.0f, float(m_grid.get_spawn_player().y)), Vector2f(7.0f / 16.0f, 1.0f));
   }
 
   ~Play_State() {
-    m_grid.save("test_level.txt");
+    //m_grid.save("test_level.txt");
   }
 
 private:
