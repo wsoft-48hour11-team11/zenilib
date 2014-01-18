@@ -30,6 +30,7 @@ LevelEditor::LevelEditor()
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_p), 26);	//Play Level
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_c), 27);	//Clear Level
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), 28);	//Popup menu
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_q), 29);	//TILE_SPAWN_CRAWLER
 }
 
 LevelEditor::~LevelEditor()
@@ -211,6 +212,15 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &/*id*/, const float &confi
 		if (confidence == 1.0)
 		{
 			get_Game().push_Popup_Menu_State();
+		}
+	}
+	else if (action == 29)
+	{
+		//TILE_SPAWN_CRAWLER
+		if (confidence == 1.0)
+		{
+			m_level[m_grid_cursor_pos.y][m_grid_cursor_pos.x] = TILE_SPAWN_CRAWLER;
+			m_level.update();
 		}
 	}
 }
