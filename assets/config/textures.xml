@@ -40,6 +40,11 @@ The following things are unsupported:
   5. Anything other than 8 bits per channel
 -->
 <Textures>
+  <deathray>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/DeathRay.png</filepath>
+    <tile>0</tile>
+  </deathray>
   <tile_full>
     <is_sprite>0</is_sprite>
     <filepath>textures/solid.png</filepath>
@@ -80,6 +85,31 @@ The following things are unsupported:
     <filepath>textures/player.png</filepath>
     <tile>0</tile>
   </player>
+  <power-blood>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/Power-Blood.png</filepath>
+    <tile>0</tile>
+  </power-blood>
+  <power-deathray>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/Power-DeathRay.png</filepath>
+    <tile>0</tile>
+  </power-deathray>
+  <power-shadow>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/Power-Shadow.png</filepath>
+    <tile>0</tile>
+  </power-shadow>
+  <power-speed>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/Power-Speed.png</filepath>
+    <tile>0</tile>
+  </power-speed>
+  <power-teleport>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/Power-Teleport.png</filepath>
+    <tile>0</tile>
+  </power-teleport>
   <!--
   <one>
     <is_sprite>0</is_sprite>
