@@ -6,6 +6,7 @@
 #include "common.h"
 #include "player.h"
 #include "Crawler.h"
+#include "PowerSeal.h"
 #include "GameSingleton.h"
 
 class Play_State : public Zeni::Gamestate_II {
@@ -40,6 +41,9 @@ class Play_State : public Zeni::Gamestate_II {
 
 	  Grid m_grid;
 	  Player m_player;
+
+    std::list<PowerSeal> m_power_seals;
+    PowerSeal * m_powerseal;
 
 	  Crawler m_crawler;
 };
