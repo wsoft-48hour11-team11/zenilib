@@ -3,6 +3,27 @@
 
 #include <zenilib.h>
 
+enum Power {POWER_EMPTY = 0,
+            POWER_BLOOD = 1,
+            POWER_DEATHRAY = 2,
+            POWER_SHADOW = 3,
+            POWER_SPEED = 4,
+            POWER_TELEPORT = 5
+          };
+
+inline const char * const power_asset(const Power &power) {
+  switch(power) {
+    case POWER_EMPTY:          return 0;
+    case POWER_BLOOD:          return "power-deathray";
+    case POWER_DEATHRAY:       return "power-deathray";
+    case POWER_SHADOW:         return "power-deathray";
+    case POWER_SPEED:          return "power-deathray";
+    case POWER_TELEPORT:       return "power-deathray";
+    default:                   assert(!"Power");
+                               return 0;
+  }
+}
+
 enum Resolution {RES_HORIZ = 1280, RES_VERT = 720, TILE_SIZE = 20};
 
 enum Tile {TILE_EMPTY = 0,         // A

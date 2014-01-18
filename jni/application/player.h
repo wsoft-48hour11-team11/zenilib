@@ -3,6 +3,8 @@
 
 #include "object.h"
 
+#include "common.h"
+
 class Player : public Object {
 public:
   enum State {STATE_IN_AIR,
@@ -80,6 +82,7 @@ public:
 
 private:
   Zeni::Vector2f m_speed;
+  Power m_powers[5];
 };
 
 
