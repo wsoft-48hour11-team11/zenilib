@@ -7,6 +7,7 @@
 #include <zenilib.h>
 
 #include "common.h"
+#include "LevelEditor.h"
 
 #if defined(_DEBUG) && defined(_WINDOWS)
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -142,7 +143,7 @@ class Bootstrap {
       }
 
       void on_accept() {
-        get_Game().push_state(new Play_State());
+        get_Game().push_state(new LevelEditor());
       }
     } edit_button;
 

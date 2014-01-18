@@ -4,6 +4,7 @@
 #include <zenilib.h>
 
 #include "common.h"
+#include "cursor.h"
 
 class LevelEditor : public Zeni::Gamestate_II
 {
@@ -25,6 +26,8 @@ class LevelEditor : public Zeni::Gamestate_II
 
 	private:
 		Grid m_level;
+		Zeni::Point2i m_grid_cursor_pos;
+		Cursor m_cursor;
 
 };
 
