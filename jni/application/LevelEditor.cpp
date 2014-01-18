@@ -10,6 +10,20 @@ LevelEditor::LevelEditor()
 	m_cursor.setDimensions(16, 16);
 	m_cursor.setThickness(4);
 	m_level.load("test_level.txt");
+
+	//Setup actions
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), 1);	//DPAD_LEFT
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RIGHT), 2);	//DPAD_RIGHT
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_UP), 3);		//DPAD_UP
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_DOWN), 4);	//DPAD_DOWN
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_1), 17);	//TILE_EMPTY
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_2), 18);	//TILE_FULL
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_3), 19);	//TILE_UPPER_LEFT
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_4), 20);	//TILE_UPPER_RIGHT
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_5), 21);	//TILE_LOWER_LEFT
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_6), 22);	//TILE_LOWER_RIGHT
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_7), 23);	//TILE_DEPOSIT
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_8), 24);	//TILE_SPAWN_PLAYER
 }
 
 LevelEditor::~LevelEditor()
@@ -34,6 +48,122 @@ void LevelEditor::on_pop()
 
 void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action)	
 {
+	if (action == 1)
+	{
+		//DPAD_LEFT
+		if (confidence == 1.0)
+		{
+			if (m_grid_cursor_pos.x > 0)
+			{
+				--m_grid_cursor_pos.x;
+			}
+		}
+	}
+	else if (action == 2)
+	{
+		//DPAD_RIGHT
+		if (confidence == 1.0)
+		{
+			if (m_grid_cursor_pos.x < m_level.get_width() - 1)
+			{
+				++m_grid_cursor_pos.x;
+			}
+		}
+	}
+	else if (action == 3)
+	{
+		//DPAD_UP
+		if (confidence == 1.0)
+		{
+			if (m_grid_cursor_pos.y > 0)
+			{
+				--m_grid_cursor_pos.y;
+			}
+		}
+	}
+	else if (action == 4)
+	{
+		//DPAD_DOWN
+		if (confidence == 1.0)
+		{
+			if (m_grid_cursor_pos.y < m_level.get_height() - 1)
+			{
+				++m_grid_cursor_pos.y;
+			}
+		}
+	}
+	else if (action == 17)
+	{
+		//TILE_EMPTY
+		if (confidence == 1.0)
+		{
+			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_EMPTY;
+		}
+	}
+	else if (action == 17)
+	{
+		//TILE_EMPTY
+		if (confidence == 1.0)
+		{
+			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_EMPTY;
+		}
+	}
+	else if (action == 18)
+	{
+		//TILE_FULL
+		if (confidence == 1.0)
+		{
+			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_FULL;
+		}
+	}
+	else if (action == 19)
+	{
+		//TILE_UPPER_LEFT
+		if (confidence == 1.0)
+		{
+			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_UPPER_LEFT;
+		}
+	}
+	else if (action == 20)
+	{
+		//TILE_UPPER_RIGHT
+		if (confidence == 1.0)
+		{
+			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_UPPER_RIGHT;
+		}
+	}
+	else if (action == 21)
+	{
+		//TILE_LOWER_LEFT
+		if (confidence == 1.0)
+		{
+			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_LOWER_LEFT;
+		}
+	}
+	else if (action == 22)
+	{
+		//TILE_LOWER_RIGHT
+		if (confidence == 1.0)
+		{
+			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_LOWER_RIGHT;
+		}
+	}
+	else if (action == 23)
+	{
+		//TILE_DEPOSIT
+		if (confidence == 1.0)
+		{
+			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_DEPOSIT;
+		}
+	}
+	else if (action == 24)
+	{
+		//TILE_SPAWN_PLAYER
+		if (confidence == 1.0)
+		{
+			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_SPAWN_PLAYER;
+		}
+	}
 }
 
 void LevelEditor::perform_logic()
