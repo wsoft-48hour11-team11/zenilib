@@ -8,8 +8,15 @@
 using namespace std;
 using namespace Zeni;
 
-LevelIntroState::LevelIntroState(int level)
+LevelIntroState::LevelIntroState(int level) :
+	tb(Point2f(0, 0), Point2f(RES_HORIZ, RES_VERT),"intro", "", get_Colors()["white"]),
+	tb2(Point2f(RES_HORIZ - 128.0f, RES_VERT - 32.0f), Point2f(RES_HORIZ, RES_VERT),"intro", "Press Enter", get_Colors()["white"])
 {
+	//Set up text boxes
+	Colors &cr = get_Colors();
+	tb.give_BG_Renderer(new Widget_Renderer_Color(cr["black"]));
+	tb2.give_BG_Renderer(new Widget_Renderer_Color(cr["black"]));
+
 	//Setup actions
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RETURN), 1);	//ENTER
 
@@ -25,6 +32,7 @@ LevelIntroState::LevelIntroState(int level)
 		m_text += c;
 	}
 	fin.close();
+	tb.set_text(m_text);
 }
 
 LevelIntroState::~LevelIntroState()
@@ -79,7 +87,6 @@ void LevelIntroState::render()
 										cr["white"]
 										ZENI_CENTER );*/
 
-	Text_Box tb(Point2f(0, 0), Point2f(RES_HORIZ, RES_VERT),"intro", m_text, cr["white"]);
-	tb.give_BG_Renderer(new Widget_Renderer_Color(cr["black"]));
 	tb.render();
+	tb2.render();
 }
