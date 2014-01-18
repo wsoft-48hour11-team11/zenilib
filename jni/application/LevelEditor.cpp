@@ -2,6 +2,7 @@
 
 #include "GameSingleton.h"
 #include "LevelIntroState.h"
+#include "Play_State.h"
 
 using namespace Zeni;
 using namespace std;
@@ -32,6 +33,7 @@ LevelEditor::LevelEditor()
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_c), 27);	//Clear Level
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), 28);	//Popup menu
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_q), 29);	//TILE_SPAWN_CRAWLER
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_i), 30);	//Show Intro Text
 }
 
 LevelEditor::~LevelEditor()
@@ -189,8 +191,7 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 			GameSingleton* sing = GameSingleton::getInstance();
 			sing->level_list.clear();
 			sing->level_list.push_back("test_level.txt");
-			//get_Game().push_state(new Play_State());
-			get_Game().push_state(new LevelIntroState(0));
+			get_Game().push_state(new Play_State());
 		}
 	}
 	else if (action == 27)
@@ -223,6 +224,17 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 		{
 			m_level[m_grid_cursor_pos.y][m_grid_cursor_pos.x] = TILE_SPAWN_CRAWLER;
 			m_level.update();
+		}
+	}
+	else if (action == 30)
+	{
+		//Level Intro
+		if (confidence == 1.0)
+		{
+			GameSingleton* sing = GameSingleton::getInstance();
+			sing->level_list.clear();
+			sing->level_list.push_back("test_level.txt");
+			get_Game().push_state(new LevelIntroState(0));
 		}
 	}
 }

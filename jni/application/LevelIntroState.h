@@ -24,6 +24,9 @@ class LevelIntroState : public Zeni::Gamestate_II
 	private:
 		LevelIntroState();
 		Zeni::String m_text;
+		
+		Zeni::Text_Box tb;
+		Zeni::Text_Box tb2;
 
 };
 
