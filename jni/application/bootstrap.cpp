@@ -6,6 +6,8 @@
 
 #include <zenilib.h>
 
+#include "common.h"
+
 #if defined(_DEBUG) && defined(_WINDOWS)
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -14,12 +16,14 @@
 using namespace std;
 using namespace Zeni;
 
-class Play_State : public Gamestate_Base {
+class Play_State : public Gamestate_II {
   Play_State(const Play_State &);
   Play_State operator=(const Play_State &);
 
 public:
-  Play_State() {
+  Play_State()
+    : m_grid(Point2i(64, 64))
+  {
     set_pausable(true);
   }
 
@@ -40,6 +44,8 @@ private:
     if(event.button == SDL_CONTROLLER_BUTTON_BACK && event.state == SDL_PRESSED)
       get_Game().push_Popup_Menu_State();
   }
+
+  Grid m_grid;
 };
 
 class Instructions_State : public Widget_Gamestate {
