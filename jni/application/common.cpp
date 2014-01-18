@@ -5,64 +5,71 @@
 using namespace Zeni;
 using namespace std;
 
-bool load_level_to_grid(Grid& grid, String filepath)
+bool Grid::load(String filepath)
 {
-	ifstream fin;
-	fin.open(filepath.c_str(), ios::in);
-	if (!fin.is_open())
-	{
-		String message = "Unable to open file \"" + filepath + "\"!";
-		cerr << message << endl;
-		return false;
-	}
-	else
-	{
-		try
-		{
-			char delim;
-			int row = 0;
-			int col = 0;
-			int id;
-			do
-			{
-				fin >> id;
-				fin.get(delim);
-				if (delim == ',')
-				{
-					grid[row][col] = static_cast<Tile>(id);
-					col++;
-				}
-				else if (delim == '\r')
-				{
-					grid[row][col] = static_cast<Tile>(id);
-					row++;
-					col = 0;
-				}
-			} while (id != -1);
-		}
-		catch(...)
-		{
-			String message = "Error loading file \"" + filepath + "\"!";
-			cerr << message << endl;
-			return false;
-		}
-	}
-	return true;
+  const size_t width = get_width();
+	ifstream fin(filepath.c_str());
+
+  size_t i = 0, j = 0;
+  char c;
+
+  while(fin >> c) {
+    if(isspace(c))
+      continue;
+
+    at(j).at(i) = Tile(c - 'A');
+
+    if(++i == width) {
+      ++j;
+      i = 0;
+    }
+  }
+
+  if(fin.eof()) {
+    build_vbo();
+    return true;
+  }
+
+  return false;
 }
 
-bool save_level_to_file(Grid& grid, String filepath)
+bool Grid::save(String filepath) const
 {
-	ofstream fout;
-	fout.open(filepath.c_str(), ios::out);
-	for (unsigned int i = 0; i < grid.get_height(); i++)
-	{
-		for (unsigned int j = 0; j < grid.get_width(); j++)
-		{
-			fout << grid[i][j] << ",";
-		}
-		fout << "\r";
+  const size_t width = get_width();
+  const size_t height = get_height();
+	ofstream fout(filepath.c_str());
+
+	for(unsigned int j = 0; j < height; ++j) {
+		for(unsigned int i = 0; i < width; ++i)
+      fout << char('A' + m_grid[j][i]);
+    fout << std::endl;
 	}
-	fout << -1 << "@\r";
-	fout.close();
-	return true;
+
+	return fout.good();
+}
+
+void Grid::build_vbo() {
+  const size_t width = get_width();
+  const size_t height = get_height();
+
+  m_grid_buffer = std::make_shared<Zeni::Vertex_Buffer>();
+
+  for(size_t j = 0; j != height; ++j) {
+    for(size_t i = 0; i != width; ++i) {
+      const char * const asset = tile_asset(m_grid[j][i]);
+
+      if(asset) {
+        Zeni::Vertex2f_Texture v0(Zeni::Point2f(m_render_offset.x + i + 0.0f, m_render_offset.y + j + 0.0f), Zeni::Point2f(0.0f, 0.0f));
+        Zeni::Vertex2f_Texture v1(Zeni::Point2f(m_render_offset.x + i + 0.0f, m_render_offset.y + j + 1.0f), Zeni::Point2f(0.0f, 1.0f));
+        Zeni::Vertex2f_Texture v2(Zeni::Point2f(m_render_offset.x + i + 1.0f, m_render_offset.y + j + 1.0f), Zeni::Point2f(1.0f, 1.0f));
+        Zeni::Vertex2f_Texture v3(Zeni::Point2f(m_render_offset.x + i + 1.0f, m_render_offset.y + j + 0.0f), Zeni::Point2f(1.0f, 0.0f));
+
+        Zeni::Quadrilateral<Zeni::Vertex2f_Texture> quad(v0, v1, v2, v3);
+        Zeni::Material mat(asset);
+        quad.lend_Material(&mat);
+
+        m_grid_buffer->fax_Quadrilateral(&quad);
+      }
+    }
+  }
 }
