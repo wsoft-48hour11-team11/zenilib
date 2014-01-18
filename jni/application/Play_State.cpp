@@ -31,7 +31,7 @@ Play_State::Play_State()
 	m_grid.load(sing->level_list[0]);
 
 	m_player = Player(Zeni::Point2f(m_grid.get_spawn_player().x + 4.5f / 16.0f, float(m_grid.get_spawn_player().y)));
-  m_player.set_acceleration(Vector2f(0.0f, 16.0f));
+  m_player.set_acceleration(Vector2f(0.0f, 32.0f));
 	
 	m_crawler = Crawler(Point2f(512, 256), Crawler::MOVING_LEFT);
 }
@@ -142,42 +142,111 @@ void Play_State::step(const float &time_step)
   const size_t height = m_grid.get_height();
 
   const auto pcb = m_player.collision_box();
+  const Collision::Parallelepiped player_ppd(Point3f(pcb.first), Vector3f(pcb.second.y), Vector3f(pcb.second.x), Vector3f(0,0,1.0f));
   for(size_t j = 0; j != height; ++j) {
     for(size_t i = 0; i != width; ++i) {
-      switch(m_grid[j][i]) {
-      case TILE_FULL:
-      case TILE_UPPER_RIGHT:
-      case TILE_UPPER_LEFT:
-      case TILE_LOWER_RIGHT:
-      case TILE_LOWER_LEFT:
-        if(m_player.collides_with(std::make_pair(Point2f(i, j), Point2f(i + 1, j + 1)))) {
-          const float push_left = fabs(i - pcb.second.x);
-          const float push_right = fabs((i + 1) - pcb.first.x);
-          const float push_up = fabs(j - pcb.second.y);
-          const float push_down = fabs((j + 1) - pcb.first.y);
+      if(m_player.collides_with(std::make_pair(Point2f(i, j), Point2f(i + 1, j + 1)))) {
+        switch(m_grid[j][i]) {
+        case TILE_FULL:
+          {
+            const float push_left = fabs(i - pcb.second.x);
+            const float push_right = fabs((i + 1) - pcb.first.x);
+            const float push_up = fabs(j - pcb.second.y);
+            const float push_down = fabs((j + 1) - pcb.first.y);
 
-          if(push_up > 0.15f && push_down > 0.15f) {
-            if(push_left < push_right)
-              m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
-            else
-              m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
-            m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
-          }
-
-          if(push_left > 0.15f && push_right > 0.15f) {
-            if(push_up < push_down) {
-              m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
-              m_player.set_can_jump(true);
+            if(push_up > 0.15f && push_down > 0.15f) {
+              if(push_left < push_right) {
+                m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
+                m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+              }
+              else {
+                m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
+                m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+              }
+              m_player.state = Player::STATE_ON_WALL;
             }
-            else
-              m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
-            m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
-          }
-        }
-        break;
 
-      default:
-        break;
+            if(push_left > 0.15f && push_right > 0.15f) {
+              if(push_up < push_down) {
+                m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
+                m_player.state = Player::STATE_ON_GROUND;
+              }
+              else
+                m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
+              m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
+            }
+          }
+          break;
+
+        case TILE_LOWER_LEFT:
+          {
+            const Collision::Line_Segment ls(Point3f(i, j, 0.0f), Point3f(i + 1.0f, j + 1.0f, 0.0f));
+            const auto np = ls.nearest_point(Point3f(pcb.first.x, pcb.second.y, 0.0f));
+            if(np.second >= 0.0f && np.second < 1.0f) {
+              const bool below = Vector3f(-1.0f, 1.0f, 0.0f).normalized() *
+                (Point3f(pcb.first.x, pcb.second.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
+
+              if(below) {
+                m_player.set_position(m_player.get_position() + Vector2f(1.0f, -1.0f, 0.0f).normalized() * np.first);
+                m_player.set_velocity(Vector2f(std::max(0.0f, m_player.get_velocity().i), std::min(0.0f, m_player.get_velocity().j)));
+                m_player.state = Player::STATE_ON_LOWER_LEFT;
+              }
+            }
+          }
+          break;
+
+        case TILE_LOWER_RIGHT:
+          {
+            const Collision::Line_Segment ls(Point3f(i, j + 1.0f, 0.0f), Point3f(i + 1.0f, j, 0.0f));
+            const auto np = ls.nearest_point(Point3f(pcb.second.x, pcb.second.y, 0.0f));
+            if(np.second >= 0.0f && np.second < 1.0f) {
+              const bool below = Vector3f(1.0f, 1.0f, 0.0f).normalized() *
+                (Point3f(pcb.second.x, pcb.second.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
+
+              if(below) {
+                m_player.set_position(m_player.get_position() + Vector2f(-1.0f, -1.0f, 0.0f).normalized() * np.first);
+                m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), std::min(0.0f, m_player.get_velocity().j)));
+                m_player.state = Player::STATE_ON_LOWER_RIGHT;
+              }
+            }
+          }
+          break;
+
+        case TILE_UPPER_LEFT:
+          {
+            const Collision::Line_Segment ls(Point3f(i, j + 1.0f, 0.0f), Point3f(i + 1.0f, j, 0.0f));
+            const auto np = ls.nearest_point(Point3f(pcb.first.x, pcb.first.y, 0.0f));
+            if(np.second >= 0.0f && np.second < 1.0f) {
+              const bool above = Vector3f(-1.0f, -1.0f, 0.0f).normalized() *
+                (Point3f(pcb.first.x, pcb.first.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
+
+              if(above) {
+                m_player.set_position(m_player.get_position() + Vector2f(1.0f, 1.0f, 0.0f).normalized() * np.first);
+                m_player.set_velocity(Vector2f(std::max(0.0f, m_player.get_velocity().i), std::max(0.0f, m_player.get_velocity().j)));
+              }
+            }
+          }
+          break;
+
+        case TILE_UPPER_RIGHT:
+          {
+            const Collision::Line_Segment ls(Point3f(i, j, 0.0f), Point3f(i + 1.0f, j + 1.0f, 0.0f));
+            const auto np = ls.nearest_point(Point3f(pcb.second.x, pcb.first.y, 0.0f));
+            if(np.second >= 0.0f && np.second < 1.0f) {
+              const bool above = Vector3f(1.0f, -1.0f, 0.0f).normalized() *
+                (Point3f(pcb.second.x, pcb.first.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
+
+              if(above) {
+                m_player.set_position(m_player.get_position() + Vector2f(-1.0f, 1.0f, 0.0f).normalized() * np.first);
+                m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), std::max(0.0f, m_player.get_velocity().j)));
+              }
+            }
+          }
+          break;
+
+        default:
+          break;
+        }
       }
     }
   }
