@@ -15,16 +15,16 @@ enum Tile {TILE_EMPTY = 0,         // A
 
 inline const char * const tile_asset(const Tile &tile) {
   switch(tile) {
-    case TILE_SPAWN_PLAYER:
-    case TILE_EMPTY:       return 0;
-    case TILE_FULL:        return "tile_full";
-    case TILE_UPPER_LEFT:  return "tile_upper_left";
-    case TILE_UPPER_RIGHT: return "tile_upper_right";
-    case TILE_LOWER_LEFT:  return "tile_lower_left";
-    case TILE_LOWER_RIGHT: return "tile_lower_right";
-    case TILE_DEPOSIT:     return "tile_deposit";
-    default:               assert(!"Tile");
-                           return 0;
+    case TILE_EMPTY:           return 0;
+    case TILE_FULL:            return "tile_full";
+    case TILE_UPPER_LEFT:      return "tile_upper_left";
+    case TILE_UPPER_RIGHT:     return "tile_upper_right";
+    case TILE_LOWER_LEFT:      return "tile_lower_left";
+    case TILE_LOWER_RIGHT:     return "tile_lower_right";
+    case TILE_DEPOSIT:         return "tile_deposit";
+    case TILE_SPAWN_PLAYER:    return "tile_spawn_player";
+    default:                   assert(!"Tile");
+                               return 0;
   }
 }
 

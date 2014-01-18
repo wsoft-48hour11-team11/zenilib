@@ -53,7 +53,7 @@ void LevelEditor::on_pop()
 {
 }
 
-void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action)	
+void LevelEditor::on_event(const Zeni::Zeni_Input_ID &/*id*/, const float &confidence, const int &action)	
 {
 	if (action == 1)
 	{
@@ -71,7 +71,7 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 		//DPAD_RIGHT
 		if (confidence == 1.0)
 		{
-			if (m_grid_cursor_pos.x < m_level.get_width() - 1)
+			if (m_grid_cursor_pos.x < int(m_level.get_width() - 1))
 			{
 				++m_grid_cursor_pos.x;
 			}
@@ -93,7 +93,7 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 		//DPAD_DOWN
 		if (confidence == 1.0)
 		{
-			if (m_grid_cursor_pos.y < m_level.get_height() - 1)
+			if (m_grid_cursor_pos.y < int(m_level.get_height() - 1))
 			{
 				++m_grid_cursor_pos.y;
 			}

@@ -70,6 +70,11 @@ The following things are unsupported:
     <filepath>textures/evil.png</filepath>
     <tile>0</tile>
   </tile_deposit>
+  <tile_spawn_player>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/spawn.png</filepath>
+    <tile>0</tile>
+  </tile_spawn_player>
   <player>
     <is_sprite>0</is_sprite>
     <filepath>textures/player.png</filepath>
@@ -100,4 +105,5 @@ The following things are unsupported:
     <token>four</token>
   </sprite_token>
   -->
+
 </Textures>
