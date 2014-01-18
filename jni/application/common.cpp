@@ -68,10 +68,10 @@ void Grid::build_vbo() {
       const char * const asset = tile_asset(m_grid[j][i]);
 
       if(asset) {
-        Zeni::Vertex2f_Texture v0(Zeni::Point2f(m_render_offset.x + i + 0.0f, m_render_offset.y + j + 0.0f), Zeni::Point2f(0.0f, 0.0f));
-        Zeni::Vertex2f_Texture v1(Zeni::Point2f(m_render_offset.x + i + 0.0f, m_render_offset.y + j + 1.0f), Zeni::Point2f(0.0f, 1.0f));
-        Zeni::Vertex2f_Texture v2(Zeni::Point2f(m_render_offset.x + i + 1.0f, m_render_offset.y + j + 1.0f), Zeni::Point2f(1.0f, 1.0f));
-        Zeni::Vertex2f_Texture v3(Zeni::Point2f(m_render_offset.x + i + 1.0f, m_render_offset.y + j + 0.0f), Zeni::Point2f(1.0f, 0.0f));
+        Zeni::Vertex2f_Texture v0(Zeni::Point2f(m_render_offset.x + 16.0f * (i + 0.0f), m_render_offset.y + 16.0f * (j + 0.0f)), Zeni::Point2f(0.0f, 0.0f));
+        Zeni::Vertex2f_Texture v1(Zeni::Point2f(m_render_offset.x + 16.0f * (i + 0.0f), m_render_offset.y + 16.0f * (j + 1.0f)), Zeni::Point2f(0.0f, 1.0f));
+        Zeni::Vertex2f_Texture v2(Zeni::Point2f(m_render_offset.x + 16.0f * (i + 1.0f), m_render_offset.y + 16.0f * (j + 1.0f)), Zeni::Point2f(1.0f, 1.0f));
+        Zeni::Vertex2f_Texture v3(Zeni::Point2f(m_render_offset.x + 16.0f * (i + 1.0f), m_render_offset.y + 16.0f * (j + 0.0f)), Zeni::Point2f(1.0f, 0.0f));
 
         Zeni::Quadrilateral<Zeni::Vertex2f_Texture> quad(v0, v1, v2, v3);
         Zeni::Material mat(asset);

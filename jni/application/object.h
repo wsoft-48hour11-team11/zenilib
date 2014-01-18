@@ -24,8 +24,8 @@ public:
     m_position += time_step * m_velocity;
   }
 
-  void render(const Zeni::String &texture, const bool &horizonally_flipped) {
-    Zeni::render_image(texture, m_position, m_position + m_size, horizonally_flipped);
+  void render(const Zeni::Vector2f &offset, const Zeni::String &texture, const bool &horizonally_flipped) {
+    Zeni::render_image(texture, offset + 16.0f * m_position, offset + 16.0f * (m_position + m_size), horizonally_flipped);
   }
  
 private:

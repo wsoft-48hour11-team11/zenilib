@@ -13,8 +13,8 @@ public:
   {
   }
 
-  void render() {
-    Object::render("player", false);
+  void render(const Zeni::Vector2f &offset) {
+    Object::render(offset, "player", false);
   }
 };
 

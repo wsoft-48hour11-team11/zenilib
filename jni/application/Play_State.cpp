@@ -4,7 +4,7 @@ using namespace std;
 using namespace Zeni;
 
 Play_State::Play_State()
-	: m_grid(Zeni::Point2i(50, 32), Point2i(0, 0)),
+	: m_grid(Zeni::Point2i(50, 32), Vector2f(0.0f, 0.0f)),
 	m_time_passed(0.0f),
 	m_max_time_step(1.0f / 20.0f), // make the largest physics step 1/20 of a second
 	m_max_time_steps(10.0f) // allow no more than 10 physics steps per frame
@@ -107,12 +107,11 @@ void Play_State::prerender() {
 
 void Play_State::render() {
 	Video &vr = get_Video();
-
-	vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(float(m_grid.get_width()), float(m_grid.get_height()))), true);
+  
+	vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(16.0f * m_grid.get_width(), 16.0f * m_grid.get_height())), true);
 
 	m_grid.render();
-	m_player.render();
 
-	vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(float(m_grid.get_width() * 16), float(m_grid.get_height() * 16))), true);
+	m_player.render(m_grid.get_render_offset());
 	m_crawler.render();
 }
