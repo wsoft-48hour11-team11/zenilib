@@ -24,6 +24,7 @@ LevelEditor::LevelEditor()
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_6), 22);	//TILE_LOWER_RIGHT
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_7), 23);	//TILE_DEPOSIT
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_8), 24);	//TILE_SPAWN_PLAYER
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_s), 25);	//Save Level
 }
 
 LevelEditor::~LevelEditor()
@@ -97,7 +98,7 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 		//TILE_EMPTY
 		if (confidence == 1.0)
 		{
-			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_EMPTY;
+			m_level[m_grid_cursor_pos.y][m_grid_cursor_pos.x] = TILE_EMPTY;
 		}
 	}
 	else if (action == 17)
@@ -105,7 +106,8 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 		//TILE_EMPTY
 		if (confidence == 1.0)
 		{
-			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_EMPTY;
+			m_level[m_grid_cursor_pos.y][m_grid_cursor_pos.x] = TILE_EMPTY;
+			m_level.update();
 		}
 	}
 	else if (action == 18)
@@ -113,7 +115,8 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 		//TILE_FULL
 		if (confidence == 1.0)
 		{
-			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_FULL;
+			m_level[m_grid_cursor_pos.y][m_grid_cursor_pos.x] = TILE_FULL;
+			m_level.update();
 		}
 	}
 	else if (action == 19)
@@ -121,7 +124,8 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 		//TILE_UPPER_LEFT
 		if (confidence == 1.0)
 		{
-			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_UPPER_LEFT;
+			m_level[m_grid_cursor_pos.y][m_grid_cursor_pos.x] = TILE_UPPER_LEFT;
+			m_level.update();
 		}
 	}
 	else if (action == 20)
@@ -129,7 +133,8 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 		//TILE_UPPER_RIGHT
 		if (confidence == 1.0)
 		{
-			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_UPPER_RIGHT;
+			m_level[m_grid_cursor_pos.y][m_grid_cursor_pos.x] = TILE_UPPER_RIGHT;
+			m_level.update();
 		}
 	}
 	else if (action == 21)
@@ -137,7 +142,8 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 		//TILE_LOWER_LEFT
 		if (confidence == 1.0)
 		{
-			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_LOWER_LEFT;
+			m_level[m_grid_cursor_pos.y][m_grid_cursor_pos.x] = TILE_LOWER_LEFT;
+			m_level.update();
 		}
 	}
 	else if (action == 22)
@@ -145,7 +151,8 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 		//TILE_LOWER_RIGHT
 		if (confidence == 1.0)
 		{
-			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_LOWER_RIGHT;
+			m_level[m_grid_cursor_pos.y][m_grid_cursor_pos.x] = TILE_LOWER_RIGHT;
+			m_level.update();
 		}
 	}
 	else if (action == 23)
@@ -153,7 +160,8 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 		//TILE_DEPOSIT
 		if (confidence == 1.0)
 		{
-			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_DEPOSIT;
+			m_level[m_grid_cursor_pos.y][m_grid_cursor_pos.x] = TILE_DEPOSIT;
+			m_level.update();
 		}
 	}
 	else if (action == 24)
@@ -161,7 +169,16 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 		//TILE_SPAWN_PLAYER
 		if (confidence == 1.0)
 		{
-			m_level[m_grid_cursor_pos.x][m_grid_cursor_pos.y] = TILE_SPAWN_PLAYER;
+			m_level[m_grid_cursor_pos.y][m_grid_cursor_pos.x] = TILE_SPAWN_PLAYER;
+			m_level.update();
+		}
+	}
+	else if (action == 25)
+	{
+		//Save Level
+		if (confidence == 1.0)
+		{
+			m_level.save("test_level.txt");
 		}
 	}
 }
@@ -177,9 +194,11 @@ void LevelEditor::step(const float &time_step)
 void LevelEditor::render()
 {
 	Video &vr = get_Video();
-	vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(float(m_level.get_width()) * 16.0f, float(m_level.get_height()) * 16.0f)), true);
-
+	
+	vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(float(m_level.get_width()), float(m_level.get_height()))), true);
 	m_level.render();
+
+	vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(float(m_level.get_width()) * 16.0f, float(m_level.get_height()) * 16.0f)), true);
 	m_cursor.setPos(Point2f(m_grid_cursor_pos.x * 16.0f, m_grid_cursor_pos.y * 16.0f));
 	m_cursor.render();
 }

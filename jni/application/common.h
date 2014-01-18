@@ -61,6 +61,11 @@ public:
   template <typename INDEX>
   Row & at(const INDEX &index) {return m_grid.at(index);}
 
+  void update()
+  {
+	  build_vbo();
+  }
+
   void render() {
     m_grid_buffer->render();
   }
