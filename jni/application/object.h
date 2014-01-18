@@ -3,6 +3,8 @@
 
 #include <zenilib.h>
 
+#include "common.h"
+
 class Object {
 public:
   Object() {}
@@ -25,11 +27,11 @@ public:
   }
 
   virtual std::pair<Zeni::Point2f, Zeni::Point2f> collision_box() const {
-    return std::make_pair(get_position(), get_position() + Zeni::Vector2f(16.0f, 16.0f));
+    return std::make_pair(get_position(), get_position() + Zeni::Vector2f(1.0f, 1.0f));
   }
 
   void render(const Zeni::Vector2f &offset, const Zeni::String &texture, const bool &horizonally_flipped) {
-    Zeni::render_image(texture, offset + 16.0f * m_position, offset + 16.0f * m_position + Zeni::Vector2f(16.0f, 16.0f), horizonally_flipped);
+    Zeni::render_image(texture, offset + TILE_SIZE * m_position, offset + TILE_SIZE * m_position + Zeni::Vector2f(TILE_SIZE, TILE_SIZE), horizonally_flipped);
   }
 
   virtual void render(const Zeni::Vector2f &offset) = 0;

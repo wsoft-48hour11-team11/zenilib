@@ -9,7 +9,7 @@ LevelEditor::LevelEditor()
 	: m_level(Point2i(50, 32), Vector2f())
 {
 	m_grid_cursor_pos = Point2i(0, 0);
-	m_cursor.setDimensions(16, 16);
+	m_cursor.setDimensions(TILE_SIZE, TILE_SIZE);
 	m_cursor.setThickness(4);
 	m_level.load("test_level.txt");
 
@@ -238,10 +238,10 @@ void LevelEditor::render()
 	Video &vr = get_Video();
 	vr.set_clear_Color(Color());
 	
-	vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(16.0f * m_level.get_width(), 16.0f * m_level.get_height())), true);
+	vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(TILE_SIZE * m_level.get_width(), TILE_SIZE * m_level.get_height())), true);
 
 	m_level.render();
 
-	m_cursor.setPos(Point2f(m_grid_cursor_pos.x * 16.0f, m_grid_cursor_pos.y * 16.0f));
+	m_cursor.setPos(Point2f(m_grid_cursor_pos.x * TILE_SIZE, m_grid_cursor_pos.y * TILE_SIZE));
 	m_cursor.render();
 }

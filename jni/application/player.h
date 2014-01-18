@@ -27,7 +27,7 @@ public:
   }
 
   std::pair<Zeni::Point2f, Zeni::Point2f> collision_box() const {
-    return std::make_pair(get_position() + Zeni::Vector2f(2.0f, 0.0f), get_position() + Zeni::Vector2f(16.0f, 7.0f));
+    return std::make_pair(get_position() + Zeni::Vector2f(2.0f / 16.0f, 0.0f), get_position() + Zeni::Vector2f(1.0f, 7.0f / 16.0f));
   }
   
   bool jump;

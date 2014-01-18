@@ -3,6 +3,8 @@
 
 #include <zenilib.h>
 
+enum Resolution {RES_HORIZ = 1280, RES_VERT = 720, TILE_SIZE = 20};
+
 enum Tile {TILE_EMPTY = 0,         // A
            TILE_FULL = 1,          // B 
            TILE_UPPER_LEFT = 2,    // C
@@ -10,8 +12,8 @@ enum Tile {TILE_EMPTY = 0,         // A
            TILE_LOWER_LEFT = 4,    // E
            TILE_LOWER_RIGHT = 5,   // F
            TILE_DEPOSIT = 6,       // G
-           TILE_SPAWN_PLAYER = 7,   // H
-		   TILE_SPAWN_CRAWLER = 8   // I
+           TILE_SPAWN_PLAYER = 7,  // H
+           TILE_SPAWN_CRAWLER = 8  // I
           };
 
 inline const char * const tile_asset(const Tile &tile) {

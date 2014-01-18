@@ -140,8 +140,10 @@ void Play_State::prerender() {
 
 void Play_State::render() {
 	Video &vr = get_Video();
+
+  vr.set_2d(make_pair(Point2f(), Point2f(RES_HORIZ, RES_VERT)), true);
   
-	vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(16.0f * m_grid.get_width(), 16.0f * m_grid.get_height())), true);
+	//vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(TILE_SIZE * m_grid.get_width(), TILE_SIZE * m_grid.get_height())), true);
 
 	m_grid.render();
 
