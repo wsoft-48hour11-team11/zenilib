@@ -35,4 +35,7 @@ private:
   std::vector<Row> m_grid;
 };
 
+bool load_level_to_grid(Grid& grid, Zeni::String filepath);
+bool save_level_to_file(Grid& grid, Zeni::String filepath);
+
 #endif

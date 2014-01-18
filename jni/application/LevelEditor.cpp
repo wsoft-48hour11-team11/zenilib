@@ -38,4 +38,5 @@ void LevelEditor::step(const float &time_step)
 
 void LevelEditor::render()
 {
+	//m_level.render();
 }

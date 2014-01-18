@@ -1,8 +1,11 @@
 #ifndef LEVELEDITOR_H
 #define LEVELEDITOR_H
+
 #include <zenilib.h>
 
-class LevelEditor : public Zeni::GameState_II
+#include "common.h"
+
+class LevelEditor : public Zeni::Gamestate_II
 {
 	public:
 		LevelEditor();
@@ -21,6 +24,7 @@ class LevelEditor : public Zeni::GameState_II
 		void render();
 
 	private:
+		Grid m_level;
 
 };
 
