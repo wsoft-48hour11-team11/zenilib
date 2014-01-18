@@ -17,7 +17,16 @@ public:
   {
   }
 
+  void set_can_jump(const bool &can_jump_) {
+    can_jump = can_jump_;
+  }
+
   void step(const float &time_step) {
+    if(jump && can_jump) {
+      set_velocity(Zeni::Vector2f(get_velocity().i, -4.0f));
+      can_jump = false;
+    }
+
     set_velocity(Zeni::Vector2f((right - left) * m_speed.i, get_velocity().j));
     Object::step(time_step);
   }
@@ -27,7 +36,7 @@ public:
   }
 
   std::pair<Zeni::Point2f, Zeni::Point2f> collision_box() const {
-    return std::make_pair(get_position() + Zeni::Vector2f(2.0f / 16.0f, 0.0f), get_position() + Zeni::Vector2f(1.0f, 7.0f / 16.0f));
+    return std::make_pair(get_position() + Zeni::Vector2f(0.0f, 2.0f / 16.0f), get_position() + Zeni::Vector2f(7.0f / 16.0f, 1.0f));
   }
   
   bool jump;
