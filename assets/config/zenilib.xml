@@ -57,12 +57,12 @@
         <!--<API>Direct3D 9</API>-->
         <!--<API>OpenGL Fixed</API>-->
         <!--<API>OpenGL Shader</API>-->
-        <API>OpenGL Fixed</API>
+        <API>OpenGL Shader</API>
         <Full_Screen>0</Full_Screen>
         <Multisampling>0</Multisampling>
         <Resolution>
-            <Width>853</Width>
-            <Height>480</Height>
+            <Width>800</Width>
+            <Height>600</Height>
         </Resolution>
         <Vertical_Sync>1</Vertical_Sync>
     </Video>

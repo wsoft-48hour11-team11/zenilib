@@ -25,6 +25,25 @@ public:
     : m_grid(Point2i(64, 64))
   {
     set_pausable(true);
+
+    for(size_t j = 0; j != m_grid.get_height(); ++j) {
+      for(size_t i = 0; i != m_grid.get_width(); ++i) {
+        const char * const asset = tile_asset(m_grid[j][i]);
+
+        if(asset) {
+          Vertex2f_Texture v0(Point2f(i + 0.0f, j + 0.0f), Point2f(0.0f, 0.0f));
+          Vertex2f_Texture v1(Point2f(i + 0.0f, j + 1.0f), Point2f(0.0f, 1.0f));
+          Vertex2f_Texture v2(Point2f(i + 1.0f, j + 1.0f), Point2f(1.0f, 1.0f));
+          Vertex2f_Texture v3(Point2f(i + 1.0f, j + 0.0f), Point2f(1.0f, 0.0f));
+
+          Quadrilateral<Vertex2f_Texture> quad(v0, v1, v2, v3);
+          Material mat(asset);
+          quad.lend_Material(&mat);
+
+          m_grid_buffer.fax_Quadrilateral(&quad);
+        }
+      }
+    }
   }
 
 private:
@@ -45,7 +64,20 @@ private:
       get_Game().push_Popup_Menu_State();
   }
 
+  void prerender() {
+    get_Video().set_clear_Color(Color());
+  }
+
+  void render() {
+    Video &vr = get_Video();
+
+    vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(float(m_grid.get_width()), float(m_grid.get_height()))), true);
+
+    m_grid_buffer.render();
+  }
+
   Grid m_grid;
+  Vertex_Buffer m_grid_buffer;
 };
 
 class Instructions_State : public Widget_Gamestate {

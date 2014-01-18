@@ -40,6 +40,41 @@ The following things are unsupported:
   5. Anything other than 8 bits per channel
 -->
 <Textures>
+  <tile_full>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/solid.png</filepath>
+    <tile>0</tile>
+  </tile_full>
+  <tile_upper_left>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/topLeftCorner.png</filepath>
+    <tile>0</tile>
+  </tile_upper_left>
+  <tile_upper_right>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/topRightCorner.png</filepath>
+    <tile>0</tile>
+  </tile_upper_right>
+  <tile_lower_left>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/bottomLeftCorner.png</filepath>
+    <tile>0</tile>
+  </tile_lower_left>
+  <tile_lower_right>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/bottomRightCorner.png</filepath>
+    <tile>0</tile>
+  </tile_lower_right>
+  <tile_deposit>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/evil.png</filepath>
+    <tile>0</tile>
+  </tile_deposit>
+  <player>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/player.png</filepath>
+    <tile>0</tile>
+  </player>
   <!--
   <one>
     <is_sprite>0</is_sprite>
