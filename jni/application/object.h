@@ -18,8 +18,11 @@ public:
   
   const Zeni::Point2f & get_position() const {return m_position;}
   const Zeni::Vector2f & get_velocity() const {return m_velocity;}
-
+  const Zeni::Vector2f & get_acceleration() const {return m_acceleration;}
+  
+  void set_position(const Zeni::Vector2f &position) {m_position = position;}
   void set_velocity(const Zeni::Vector2f &velocity) {m_velocity = velocity;}
+  void set_acceleration(const Zeni::Vector2f &acceleration) {m_acceleration = acceleration;}
 
   virtual void step(const float &time_step) {
     m_velocity += time_step * m_acceleration;
@@ -28,6 +31,20 @@ public:
 
   virtual std::pair<Zeni::Point2f, Zeni::Point2f> collision_box() const {
     return std::make_pair(get_position(), get_position() + Zeni::Vector2f(1.0f, 1.0f));
+  }
+
+  bool collides_with(const std::pair<Zeni::Point2f, Zeni::Point2f> &rhs) const {
+    const auto lhs = collision_box();
+
+    if(rhs.first.x > lhs.second.x ||
+       lhs.first.x > rhs.second.x ||
+       rhs.first.y > lhs.second.y ||
+       lhs.first.y > rhs.second.y)
+    {
+      return false;
+    }
+    else
+      return true;
   }
 
   void render(const Zeni::Vector2f &offset, const Zeni::String &texture, const bool &horizonally_flipped) {

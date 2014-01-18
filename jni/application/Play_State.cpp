@@ -17,20 +17,21 @@ Play_State::Play_State()
 {
 	set_pausable(true);
   
-  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), ACTION_ESCAPE);
-  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_w), ACTION_JUMP);
-  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_a), ACTION_LEFT);
-  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_d), ACTION_RIGHT);
-  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_UP), ACTION_JUMP);
-  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), ACTION_LEFT);
-  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RIGHT), ACTION_RIGHT);
-  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SPACE), ACTION_JUMP);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), ACTION_ESCAPE);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_w), ACTION_JUMP);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_a), ACTION_LEFT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_d), ACTION_RIGHT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_UP), ACTION_JUMP);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), ACTION_LEFT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RIGHT), ACTION_RIGHT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SPACE), ACTION_JUMP);
 
 	//m_grid.load("test_level.txt");
 	GameSingleton* sing = GameSingleton::getInstance();
 	m_grid.load(sing->level_list[0]);
 
 	m_player = Player(Zeni::Point2f(m_grid.get_spawn_player().x + 4.5f / 16.0f, float(m_grid.get_spawn_player().y)));
+  m_player.set_acceleration(Vector2f(0.0f, 16.0f));
 	
 	m_crawler = Crawler(Point2f(512, 256), Crawler::MOVING_LEFT);
 }
@@ -41,6 +42,8 @@ Play_State::~Play_State() {
 
 void Play_State::on_push() {
 	get_Window().set_mouse_state(Window::MOUSE_HIDDEN);
+
+  get_Video().set_clear_Color(Color(1.0f, 0.0f, 0.0f, 0.0f));
 }
 
 void Play_State::on_pop() {
@@ -49,6 +52,8 @@ void Play_State::on_pop() {
 
 void Play_State::on_cover() {
   get_Controllers().reset_vibration_all();
+
+  get_Video().set_clear_Color(Color(1.0f, 0.0f, 0.0f, 0.0f));
 }
 
 void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, const int &action) {
@@ -132,6 +137,50 @@ void Play_State::step(const float &time_step)
 {
   m_player.step(time_step);
 	m_crawler.step(time_step);
+
+  const size_t width = m_grid.get_width();
+  const size_t height = m_grid.get_height();
+
+  const auto pcb = m_player.collision_box();
+  for(size_t j = 0; j != height; ++j) {
+    for(size_t i = 0; i != width; ++i) {
+      switch(m_grid[j][i]) {
+      case TILE_FULL:
+      case TILE_UPPER_RIGHT:
+      case TILE_UPPER_LEFT:
+      case TILE_LOWER_RIGHT:
+      case TILE_LOWER_LEFT:
+        if(m_player.collides_with(std::make_pair(Point2f(i, j), Point2f(i + 1, j + 1)))) {
+          const float push_left = fabs(i - pcb.second.x);
+          const float push_right = fabs((i + 1) - pcb.first.x);
+          const float push_up = fabs(j - pcb.second.y);
+          const float push_down = fabs((j + 1) - pcb.first.y);
+
+          if(push_up > 0.15f && push_down > 0.15f) {
+            if(push_left < push_right)
+              m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
+            else
+              m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
+            m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+          }
+
+          if(push_left > 0.15f && push_right > 0.15f) {
+            if(push_up < push_down) {
+              m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
+              m_player.set_can_jump(true);
+            }
+            else
+              m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
+            m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
+          }
+        }
+        break;
+
+      default:
+        break;
+      }
+    }
+  }
 }
 
 void Play_State::prerender() {
