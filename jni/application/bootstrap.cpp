@@ -7,6 +7,8 @@
 #include <zenilib.h>
 
 #include "common.h"
+
+#include "player.h"
 #include "LevelEditor.h"
 
 #if defined(_DEBUG) && defined(_WINDOWS)
@@ -23,9 +25,17 @@ class Play_State : public Gamestate_II {
 
 public:
   Play_State()
-    : m_grid(Point2i(64, 64), Point2i(0, 0))
+    : m_grid(Point2i(50, 32), Point2i(0, 0))
   {
     set_pausable(true);
+
+    m_grid.load("test_level.txt");
+
+    m_player = Player(Point2f(m_grid.get_spawn_player().x + 4.5f / 16.0f, float(m_grid.get_spawn_player().y)), Vector2f(7.0f / 16.0f, 1.0f));
+  }
+
+  ~Play_State() {
+    m_grid.save("test_level.txt");
   }
 
 private:
@@ -56,9 +66,11 @@ private:
     vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(float(m_grid.get_width()), float(m_grid.get_height()))), true);
 
     m_grid.render();
+    m_player.render();
   }
 
   Grid m_grid;
+  Player m_player;
 };
 
 class Instructions_State : public Widget_Gamestate {
