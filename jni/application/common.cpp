@@ -19,6 +19,15 @@ bool Grid::load(String filepath)
 
     at(j).at(i) = Tile(c - 'A');
 
+    switch(at(j).at(i)) {
+      case TILE_SPAWN_PLAYER:
+        m_spawn_player = Point2i(i, j);
+        break;
+
+      default:
+        break;
+    }
+
     if(++i == width) {
       ++j;
       i = 0;
