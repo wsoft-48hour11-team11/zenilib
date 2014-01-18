@@ -22,7 +22,7 @@ class Play_State : public Gamestate_II {
 
 public:
   Play_State()
-    : m_grid(Point2i(64, 64))
+    : m_grid(Point2i(64, 64), Point2i(0, 0))
   {
     set_pausable(true);
   }
@@ -43,6 +43,18 @@ private:
   void on_controller_button(const SDL_ControllerButtonEvent &event) {
     if(event.button == SDL_CONTROLLER_BUTTON_BACK && event.state == SDL_PRESSED)
       get_Game().push_Popup_Menu_State();
+  }
+
+  void prerender() {
+    get_Video().set_clear_Color(Color());
+  }
+
+  void render() {
+    Video &vr = get_Video();
+
+    vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(float(m_grid.get_width()), float(m_grid.get_height()))), true);
+
+    m_grid.render();
   }
 
   Grid m_grid;
