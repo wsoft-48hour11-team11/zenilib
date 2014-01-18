@@ -13,11 +13,11 @@ class Crawler : public Enemy
 		};
 
 		Crawler();
-		Crawler(Zeni::Point2f pos, STATE state);
+		Crawler(const Zeni::Point2f &pos, const STATE &state);
 		~Crawler();
 
-		virtual void update(float time);
-		virtual void render();
+		void step(const float &time_step);
+		void render(const Zeni::Vector2f &offset);
 
 	private:
 		STATE m_state;

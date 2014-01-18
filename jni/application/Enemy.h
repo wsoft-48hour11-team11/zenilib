@@ -3,22 +3,12 @@
 
 #include <zenilib.h>
 
+#include "object.h"
 
-class Enemy
-{
+class Enemy : public Object {
 	public:
-		Enemy();
+		Enemy(const Zeni::Point2f &pos);
 		~Enemy();
-
-		virtual void update(float time) = 0;
-		virtual void render() = 0;
-
-		virtual Zeni::Point2f getPos();
-		virtual void setPos(Zeni::Point2f pos);
-
-	protected:
-		Zeni::Point2f m_pos;
-
 };
 
 

@@ -3,22 +3,36 @@
 using namespace std;
 using namespace Zeni;
 
+enum Action_ID {ACTION_ESCAPE = 1,
+                ACTION_JUMP,
+                ACTION_LEFT,
+                ACTION_RIGHT
+               };
+
 Play_State::Play_State()
 	: m_grid(Zeni::Point2i(50, 32), Vector2f(0.0f, 0.0f)),
 	m_time_passed(0.0f),
-	m_max_time_step(1.0f / 20.0f), // make the largest physics step 1/20 of a second
+	m_max_time_step(1.0f / 30.0f), // make the largest physics step 1/30 of a second
 	m_max_time_steps(10.0f) // allow no more than 10 physics steps per frame
 {
 	set_pausable(true);
+  
+  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), ACTION_ESCAPE);
+  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_w), ACTION_JUMP);
+  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_a), ACTION_LEFT);
+  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_d), ACTION_RIGHT);
+  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_UP), ACTION_JUMP);
+  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), ACTION_LEFT);
+  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RIGHT), ACTION_RIGHT);
+  this->set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SPACE), ACTION_JUMP);
 
 	//m_grid.load("test_level.txt");
 	GameSingleton* sing = GameSingleton::getInstance();
 	m_grid.load(sing->level_list[0]);
 
-	m_player = Player(Zeni::Point2f(m_grid.get_spawn_player().x + 4.5f / 16.0f, float(m_grid.get_spawn_player().y)), Zeni::Vector2f(7.0f / 16.0f, 1.0f));
+	m_player = Player(Zeni::Point2f(m_grid.get_spawn_player().x + 4.5f / 16.0f, float(m_grid.get_spawn_player().y)));
 	
 	m_crawler = Crawler(Point2f(512, 256), Crawler::MOVING_LEFT);
-
 }
 
 Play_State::~Play_State() {
@@ -34,12 +48,31 @@ void Play_State::on_pop() {
 }
 
 void Play_State::on_cover() {
-get_Controllers().reset_vibration_all();
+  get_Controllers().reset_vibration_all();
 }
 
-void Play_State::on_controller_button(const SDL_ControllerButtonEvent &event) {
-	if(event.button == SDL_CONTROLLER_BUTTON_BACK && event.state == SDL_PRESSED)
-	    get_Game().push_Popup_Menu_State();
+void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, const int &action) {
+  switch(action) {
+  case ACTION_ESCAPE:
+    if(confidence > 0.5f)
+      get_Game().push_Popup_Menu_State();
+    break;
+
+  case ACTION_JUMP:
+    m_player.jump = confidence > 0.5f;
+    break;
+
+  case ACTION_LEFT:
+    m_player.left = confidence > 0.5f;
+    break;
+
+  case ACTION_RIGHT:
+    m_player.right = confidence > 0.5f;
+    break;
+
+  default:
+    break;
+  }
 }
 
 void Play_State::perform_logic()
@@ -97,9 +130,9 @@ void Play_State::perform_logic()
 
 void Play_State::step(const float &time_step)
 {
-	m_crawler.update(time_step);
+  m_player.step(time_step);
+	m_crawler.step(time_step);
 }
-
 
 void Play_State::prerender() {
 	get_Video().set_clear_Color(Color());
@@ -113,5 +146,5 @@ void Play_State::render() {
 	m_grid.render();
 
 	m_player.render(m_grid.get_render_offset());
-	m_crawler.render();
+	m_crawler.render(m_grid.get_render_offset());
 }

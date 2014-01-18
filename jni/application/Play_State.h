@@ -27,7 +27,7 @@ class Play_State : public Zeni::Gamestate_II {
 
 	  void on_cover();
 
-	  void on_controller_button(const SDL_ControllerButtonEvent &event);
+    void on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action);
 
 	  void prerender();
 

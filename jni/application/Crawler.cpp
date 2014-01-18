@@ -7,13 +7,14 @@ using namespace Zeni;
 const float MOVEMENT_SPEED = 10;
 
 Crawler::Crawler()
+  : Enemy(Point2f())
 {
 	m_state = MOVING_LEFT;
 }
 
-Crawler::Crawler(Zeni::Point2f pos, Crawler::STATE state)
+Crawler::Crawler(const Zeni::Point2f &pos, const Crawler::STATE &state)
+  : Enemy(pos)
 {
-	setPos(pos);
 	m_state = state;
 }
 
@@ -21,27 +22,20 @@ Crawler::~Crawler()
 {
 }
 
-void Crawler::update(float time)
+void Crawler::step(const float &time_step)
 {
 	if (m_state == MOVING_LEFT)
 	{
-		m_pos.x -= MOVEMENT_SPEED * time;
+    set_velocity(Vector2f(-MOVEMENT_SPEED * time_step, 0.0f));
 	}
 	else if (m_state == MOVING_RIGHT)
 	{
-		m_pos.x += MOVEMENT_SPEED * time;
+    set_velocity(Vector2f(MOVEMENT_SPEED * time_step, 0.0f));
 	}
 
 }
 
-void Crawler::render()
+void Crawler::render(const Zeni::Vector2f &offset)
 {
-	if (m_state == MOVING_LEFT)
-	{
-		Zeni::render_image("player", m_pos, Point2f(m_pos.x + 16, m_pos.y + 16), false);
-	}
-	else //if (m_state == MOVING_RIGHT)
-	{
-		Zeni::render_image("player", m_pos, Point2f(m_pos.x + 16, m_pos.y + 16), true);
-	}
+  Object::render(offset, "player", m_state == MOVING_RIGHT);
 }
