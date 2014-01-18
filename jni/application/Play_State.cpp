@@ -148,8 +148,6 @@ void Play_State::step(const float &time_step)
       if(m_player.collides_with(std::make_pair(Point2f(i, j), Point2f(i + 1, j + 1)))) {
         switch(m_grid[j][i]) {
         case TILE_FULL:
-        case TILE_UPPER_RIGHT:
-        case TILE_UPPER_LEFT:
           {
             const float push_left = fabs(i - pcb.second.x);
             const float push_right = fabs((i + 1) - pcb.first.x);
@@ -203,6 +201,39 @@ void Play_State::step(const float &time_step)
 
               if(below) {
                 m_player.set_position(m_player.get_position() + Vector2f(-1.0f, -1.0f, 0.0f).normalized() * np.first);
+                m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), std::min(0.0f, m_player.get_velocity().j)));
+                m_player.set_can_jump(true);
+              }
+            }
+          }
+          break;
+
+        case TILE_UPPER_LEFT:
+          {
+            const Collision::Line_Segment ls(Point3f(i, j + 1.0f, 0.0f), Point3f(i + 1.0f, j, 0.0f));
+            const auto np = ls.nearest_point(Point3f(pcb.first.x, pcb.first.y, 0.0f));
+            if(np.second >= 0.0f && np.second < 1.0f) {
+              const bool below = Vector3f(-1.0f, -1.0f, 0.0f).normalized() *
+                (Point3f(pcb.first.x, pcb.first.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
+
+              if(below) {
+                m_player.set_position(m_player.get_position() + Vector2f(1.0f, 1.0f, 0.0f).normalized() * np.first);
+                m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), std::min(0.0f, m_player.get_velocity().j)));
+              }
+            }
+          }
+          break;
+
+        case TILE_UPPER_RIGHT:
+          {
+            const Collision::Line_Segment ls(Point3f(i, j + 1.0f, 0.0f), Point3f(i + 1.0f, j, 0.0f));
+            const auto np = ls.nearest_point(Point3f(pcb.second.x, pcb.first.y, 0.0f));
+            if(np.second >= 0.0f && np.second < 1.0f) {
+              const bool below = Vector3f(-1.0f, -1.0f, 0.0f).normalized() *
+                (Point3f(pcb.second.x, pcb.first.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
+
+              if(below) {
+                m_player.set_position(m_player.get_position() + Vector2f(1.0f, 1.0f, 0.0f).normalized() * np.first);
                 m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), std::min(0.0f, m_player.get_velocity().j)));
                 m_player.set_can_jump(true);
               }
