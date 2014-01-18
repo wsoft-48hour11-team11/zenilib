@@ -10,7 +10,8 @@ enum Tile {TILE_EMPTY = 0,         // A
            TILE_LOWER_LEFT = 4,    // E
            TILE_LOWER_RIGHT = 5,   // F
            TILE_DEPOSIT = 6,       // G
-           TILE_SPAWN_PLAYER = 7   // H
+           TILE_SPAWN_PLAYER = 7,   // H
+		   TILE_SPAWN_CRAWLER = 8   // H
           };
 
 inline const char * const tile_asset(const Tile &tile) {
