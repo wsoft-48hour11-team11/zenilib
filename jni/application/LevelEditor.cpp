@@ -29,6 +29,7 @@ LevelEditor::LevelEditor()
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_s), 25);	//Save Level
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_p), 26);	//Play Level
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_c), 27);	//Clear Level
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), 28);	//Popup menu
 }
 
 LevelEditor::~LevelEditor()
@@ -202,6 +203,14 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 				}
 			}
 			m_level.update();
+		}
+	}
+	else if (action == 28)
+	{
+		//Escape
+		if (confidence == 1.0)
+		{
+			get_Game().push_Popup_Menu_State();
 		}
 	}
 }
