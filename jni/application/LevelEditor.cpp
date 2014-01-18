@@ -1,5 +1,7 @@
 #include "LevelEditor.h"
 
+#include "GameSingleton.h"
+
 using namespace Zeni;
 using namespace std;
 
@@ -25,10 +27,12 @@ LevelEditor::LevelEditor()
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_7), 23);	//TILE_DEPOSIT
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_8), 24);	//TILE_SPAWN_PLAYER
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_s), 25);	//Save Level
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_p), 26);	//Play Level
 }
 
 LevelEditor::~LevelEditor()
 {
+	GameSingleton::getInstance()->loadLevelList("levellist.txt");
 }
 
 void LevelEditor::on_cover()
@@ -179,6 +183,17 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 		if (confidence == 1.0)
 		{
 			m_level.save("test_level.txt");
+		}
+	}
+	else if (action == 26)
+	{
+		//Play Level
+		if (confidence == 1.0)
+		{
+			GameSingleton* sing = GameSingleton::getInstance();
+			sing->level_list.clear();
+			sing->level_list.push_back("test_level.txt");
+			//get_Game().push_state(new Play_State());
 		}
 	}
 }
