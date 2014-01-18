@@ -8,7 +8,8 @@ enum Power {POWER_EMPTY = 0,
             POWER_DEATHRAY = 2,
             POWER_SHADOW = 3,
             POWER_SPEED = 4,
-            POWER_TELEPORT = 5
+            POWER_TELEPORT = 5,
+            POWER_LIST_SIZE = 6
           };
 
 inline const char * const power_asset(const Power &power) {

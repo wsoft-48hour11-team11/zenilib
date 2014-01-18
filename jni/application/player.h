@@ -22,8 +22,33 @@ public:
   state(STATE_IN_AIR),
   left(false),
   right(false),
-  m_speed(8.0f, 8.0f)
+  m_speed(8.0f, 8.0f),
+  m_powers(POWER_LIST_SIZE, true)
   {
+    m_powers[POWER_EMPTY] = false;
+  }
+
+  std::list<Power> get_powers() const {
+    std::list<Power> powers;
+    for(int i = 1; i != POWER_LIST_SIZE; ++i) {
+      if(m_powers[i])
+        powers.push_back(Power(i));
+    }
+    return powers;
+  }
+
+  bool has_power(const Power &power) const {
+    return m_powers[power];
+  }
+
+  void add_power(const Power &power) {
+    assert(!m_powers[power]);
+    m_powers[power] = true;
+  }
+
+  void remove_power(const Power &power) {
+    assert(m_powers[power]);
+    m_powers[power] = false;
   }
 
   void step(const float &time_step) {
@@ -82,7 +107,7 @@ public:
 
 private:
   Zeni::Vector2f m_speed;
-  Power m_powers[5];
+  std::vector<bool> m_powers;
 };
 
 
