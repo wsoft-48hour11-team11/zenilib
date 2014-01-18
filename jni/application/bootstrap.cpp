@@ -116,6 +116,32 @@ class Bootstrap {
     }
   };
 
+  class Our_Title_State : public Title_State<Play_State, Instructions_State> {
+  public:
+    class Edit_Button : public Text_Button {
+      Edit_Button(const Play_Button &);
+      Edit_Button & operator=(const Play_Button &);
+
+    public:
+      Edit_Button()
+        : Text_Button(Point2f(410.0f, 250.0f), Point2f(600.0f, 310.0f),
+                      "system_36_800x600", "Edit")
+      {
+      }
+
+      void on_accept() {
+        get_Game().push_state(new Play_State());
+      }
+    } edit_button;
+
+    Our_Title_State()
+      : Title_State<Play_State, Instructions_State>("Zenipex Library\nApplication")
+    {
+      play_button.set_lower_right(Point2f(390.0f, 310.0f));
+      m_widgets.lend_Widget(edit_button);
+    }
+  };
+
   class Gamestate_One_Initializer : public Gamestate_Zero_Initializer {
     virtual Gamestate_Base * operator()() {
       Window::set_title("zenilib Application");
@@ -128,7 +154,7 @@ class Bootstrap {
 
       get_Game().replace_Popup_Menu_State_Factory(new Popup_Menu_Instructions::Factory);
 
-      return new Title_State<Play_State, Instructions_State>("Zenipex Library\nApplication");
+      return new Our_Title_State;
     }
   } m_goi;
 
