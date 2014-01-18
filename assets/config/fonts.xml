@@ -18,6 +18,14 @@ For each entry in Fonts:
 Only TrueType fonts are supported.
 -->
 <Fonts>
+  <intro>
+    <filepath>fonts/FORGOTTE.TTF</filepath>
+    <height>24</height>
+    <virtual_screen>
+      <width>1280</width>
+      <height>720</height>
+    </virtual_screen>
+  </intro>
   <system_36_x600>
     <filepath>fonts/FORGOTTE.TTF</filepath>
     <height>36</height>

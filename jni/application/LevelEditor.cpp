@@ -1,6 +1,7 @@
 #include "LevelEditor.h"
 
 #include "GameSingleton.h"
+#include "LevelIntroState.h"
 
 using namespace Zeni;
 using namespace std;
@@ -54,7 +55,7 @@ void LevelEditor::on_pop()
 {
 }
 
-void LevelEditor::on_event(const Zeni::Zeni_Input_ID &/*id*/, const float &confidence, const int &action)	
+void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action)	
 {
 	if (action == 1)
 	{
@@ -189,6 +190,7 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &/*id*/, const float &confi
 			sing->level_list.clear();
 			sing->level_list.push_back("test_level.txt");
 			//get_Game().push_state(new Play_State());
+			get_Game().push_state(new LevelIntroState(0));
 		}
 	}
 	else if (action == 27)
