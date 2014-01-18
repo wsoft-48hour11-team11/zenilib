@@ -5,6 +5,7 @@
 
 #include "common.h"
 #include "player.h"
+#include "Crawler.h"
 #include "GameSingleton.h"
 
 class Play_State : public Zeni::Gamestate_II {
@@ -15,6 +16,9 @@ class Play_State : public Zeni::Gamestate_II {
 	  Play_State();
 
 	  ~Play_State();
+
+	  void perform_logic();
+	  void step(const float &time_step);
 
 	private:
 	  void on_push();
@@ -29,8 +33,15 @@ class Play_State : public Zeni::Gamestate_II {
 
 	  void render();
 
+	  Zeni::Time m_current_time;
+		float m_time_passed;
+		float m_max_time_step;  //< Optional
+		float m_max_time_steps; //< Optional
+
 	  Grid m_grid;
 	  Player m_player;
+
+	  Crawler m_crawler;
 };
 
 #endif
