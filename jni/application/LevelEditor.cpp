@@ -3,6 +3,7 @@
 #include "GameSingleton.h"
 #include "LevelIntroState.h"
 #include "Play_State.h"
+//#include "PowerSelect.h"
 
 using namespace Zeni;
 using namespace std;
@@ -192,6 +193,9 @@ void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 			sing->level_list.clear();
 			sing->level_list.push_back("test_level.txt");
 			get_Game().push_state(new Play_State());
+			//Player* player = new Player();
+			//PowerSeal* powerseal = new PowerSeal();
+			//get_Game().push_state(new PowerSelect(this, player, powerseal));
 		}
 	}
 	else if (action == 27)
