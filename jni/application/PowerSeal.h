@@ -2,28 +2,21 @@
 #define POWERSEAL_H
 
 #include "common.h"
+#include "object.h"
 
-class PowerSeal
+class PowerSeal : public Object
 {
 	public:		
-		PowerSeal();
+		PowerSeal(const Zeni::Point2f &position, const Power &power);
 		~PowerSeal();
-
-		Zeni::Point2f getUpperLeft();
-		void setUpperLeft(Zeni::Point2f upper_left);
-
-		Zeni::Point2f getLowerRight();
-		void setLowerRight(Zeni::Point2f lower_right);
 
 		Power getPower();
 		void setPower(Power power);
 
-		void render();
+    void render(const Zeni::Vector2f &offset);
 
 	private:
 		Power m_power;
-		Zeni::Point2f m_upper_left;
-		Zeni::Point2f m_lower_right;
 };
 
 #endif

@@ -24,6 +24,10 @@ bool Grid::load(String filepath)
         m_spawn_player = Point2i(i, j);
         break;
 
+      case TILE_DEPOSIT:
+        m_deposits.push_back(Point2i(i, j));
+        break;
+
       default:
         break;
     }
@@ -65,7 +69,7 @@ void Grid::build_vbo() {
 
   for(size_t j = 0; j != height; ++j) {
     for(size_t i = 0; i != width; ++i) {
-      const char * const asset = tile_asset(m_grid[j][i]);
+      const char * const asset = tile_asset(m_grid[j][i], m_in_editor);
 
       if(asset) {
         Zeni::Vertex2f_Texture v0(Zeni::Point2f(m_render_offset.x + TILE_SIZE * (i + 0.0f), m_render_offset.y + TILE_SIZE * (j + 0.0f)), Zeni::Point2f(0.0f, 0.0f));
