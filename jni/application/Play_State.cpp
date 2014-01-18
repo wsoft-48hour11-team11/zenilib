@@ -155,17 +155,20 @@ void Play_State::step(const float &time_step)
             const float push_down = fabs((j + 1) - pcb.first.y);
 
             if(push_up > 0.15f && push_down > 0.15f) {
-              if(push_left < push_right)
+              if(push_left < push_right) {
                 m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
-              else
+                m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+              }
+              else {
                 m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
-              m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+                m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+              }
             }
 
             if(push_left > 0.15f && push_right > 0.15f) {
               if(push_up < push_down) {
                 m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
-                m_player.set_can_jump(true);
+                m_player.state = Player::STATE_ON_GROUND;
               }
               else
                 m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
@@ -185,7 +188,7 @@ void Play_State::step(const float &time_step)
               if(below) {
                 m_player.set_position(m_player.get_position() + Vector2f(1.0f, -1.0f, 0.0f).normalized() * np.first);
                 m_player.set_velocity(Vector2f(std::max(0.0f, m_player.get_velocity().i), std::min(0.0f, m_player.get_velocity().j)));
-                m_player.set_can_jump(true);
+                m_player.state = Player::STATE_ON_LOWER_LEFT;
               }
             }
           }
@@ -202,7 +205,7 @@ void Play_State::step(const float &time_step)
               if(below) {
                 m_player.set_position(m_player.get_position() + Vector2f(-1.0f, -1.0f, 0.0f).normalized() * np.first);
                 m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), std::min(0.0f, m_player.get_velocity().j)));
-                m_player.set_can_jump(true);
+                m_player.state = Player::STATE_ON_LOWER_RIGHT;
               }
             }
           }
@@ -235,7 +238,6 @@ void Play_State::step(const float &time_step)
               if(above) {
                 m_player.set_position(m_player.get_position() + Vector2f(-1.0f, 1.0f, 0.0f).normalized() * np.first);
                 m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), std::max(0.0f, m_player.get_velocity().j)));
-                m_player.set_can_jump(true);
               }
             }
           }
