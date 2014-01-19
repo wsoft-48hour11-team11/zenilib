@@ -16,10 +16,14 @@ class Enemy : public Object {
 
 		virtual void applyCollisionEffect(Player& player) = 0;
 
+		bool getDeleteThis();
+		void setDeleteThis(bool deleteThis);
+
 	protected:
 		void setCollisionBox(Zeni::Point2f upper_left, Zeni::Point2f lower_right);
 		Zeni::Point2f m_collision_ul;
 		Zeni::Point2f m_collision_lr;
+		bool m_delete;
 };
 
 

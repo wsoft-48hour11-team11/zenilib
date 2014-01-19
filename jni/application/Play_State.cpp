@@ -318,9 +318,23 @@ void Play_State::step(const float &time_step)
 		  if (m_player.collides_with((*i)->getCollisionBox()))
 		  {
 			  (*i)->applyCollisionEffect(m_player);
+
+			  //Kill whatever collided with the player
+			  (*i)->setDeleteThis(true);
 		  }
 	  }
   }
+
+  //Clean up any Enemies that should be deleted
+  for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
+  {
+	  if ((*i)->getDeleteThis())
+	  {
+		  delete (*i);
+		  i = m_enemies.erase(i);
+	  }
+  }
+
 }
 
 void Play_State::prerender() {
