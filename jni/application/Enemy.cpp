@@ -3,7 +3,7 @@
 using namespace std;
 
 Enemy::Enemy(const Zeni::Point2f &pos)
-  : Object(pos)
+  : Object(pos), m_shadow_source(Zeni::get_Sounds()["shadow"], 1.0f, 0.5f)
 {
 	setDeleteThis(false);
 }

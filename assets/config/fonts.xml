@@ -26,6 +26,14 @@ Only TrueType fonts are supported.
       <height>720</height>
     </virtual_screen>
   </intro>
+  <main_game>
+    <filepath>fonts/FORGOTTE.TTF</filepath>
+    <height>48</height>
+    <virtual_screen>
+      <width>1280</width>
+      <height>720</height>
+    </virtual_screen>
+  </main_game>
   <system_36_x600>
     <filepath>fonts/FORGOTTE.TTF</filepath>
     <height>36</height>

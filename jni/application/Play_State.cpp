@@ -164,7 +164,7 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 	if (m_player.has_power(POWER_DEATHRAY) && confidence == 1.0)
 	{
 		m_deathrays.push_back(new DeathRay(m_player.get_position(), m_player.moving_right ? DeathRay::MOVING_RIGHT : DeathRay::MOVING_LEFT));
-    Zeni::play_sound("deathray");
+    Zeni::play_sound("deathray", 1.0f, 0.7f);
 	}
 	break;
 
@@ -203,7 +203,7 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 			m_player.set_position(Point2f(float(next_grid_pos.x), float(next_grid_pos.y)));
 		}
 	}
-  Zeni::play_sound("portal");
+  Zeni::play_sound("portal", 1.0f, 0.7f);
 	break;
   
   case ACTION_DEPOSIT:
@@ -595,7 +595,7 @@ void Play_State::step(const float &time_step)
 		  if (m_player.collides_with((*i)->getCollisionBox()))
 		  {
 			if(m_player.has_power(POWER_SHADOW)) {
-				Zeni::play_sound("shadow");
+        (*i)->play_sound();
 			}
 			else {
 				(*i)->applyCollisionEffect(m_player);
@@ -607,7 +607,7 @@ void Play_State::step(const float &time_step)
 				m_player.killPlayer();
 				/*get_Game().pop_state();
 				get_Game().push_state(new DefeatState(m_level_number));*/
-				Zeni::play_sound("deathByEnemy");
+				Zeni::play_sound("deathByEnemy", 1.0f, 0.7f);
 			}
 		  }
 	  }
@@ -717,7 +717,7 @@ void Play_State::render() {
   }
 
   if(m_player.get_powers().empty())
-    get_Fonts()["intro"].render_text("The world is safe... for now.", Point2f(), Color());
+    get_Fonts()["main_game"].render_text("The world is safe... for now.", Point2f(RES_HORIZ / 2.0f, 10.0f), get_Colors()["red"], ZENI_CENTER);
   else
-    get_Fonts()["intro"].render_text(itoa(int(m_time_to_failure[m_player.get_powers().size()] - m_time_processed)), Point2f(), Color());
+    get_Fonts()["main_game"].render_text(itoa(int(m_time_to_failure[m_player.get_powers().size()] - m_time_processed)) + " Seconds Left!", Point2f(RES_HORIZ / 2.0f, 10.0f), get_Colors()["green"], ZENI_CENTER);
 }
