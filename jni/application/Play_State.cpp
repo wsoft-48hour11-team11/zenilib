@@ -273,11 +273,23 @@ void Play_State::step(const float &time_step)
   if(m_player.get_velocity().magnitude() > 10.0f)
     m_player.set_velocity(m_player.get_velocity().normalized() * 10.0f);
 
-  for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
-	  (*i)->step(time_step);
+  for (list<Enemy*>::iterator it = m_enemies.begin(); it != m_enemies.end(); ++it) {
 
-  for (list<DeathRay*>::iterator i = m_deathrays.begin(); i != m_deathrays.end(); i++)
-	  (*i)->step(time_step);
+    (*it)->step(time_step);
+    {
+      const auto egp = (*it)->grid_pos();
+      const int inc = (*it)->get_velocity().i > 0.0f ? 1 : -1;
+      const Tile next = m_grid.at(egp.y).at(egp.x + inc);
+      const Tile below = m_grid.at(egp.y + 1).at(egp.x + inc);
+      if(!(next == TILE_EMPTY || next == TILE_SPAWN_CRAWLER || next == TILE_DEPOSIT) || below != TILE_FULL)
+      {
+        (*it)->switch_direction();
+      }
+    }
+  }
+
+  for (list<DeathRay*>::iterator it = m_deathrays.begin(); it != m_deathrays.end(); ++it)
+	  (*it)->step(time_step);
 
   const size_t width = m_grid.get_width();
   const size_t height = m_grid.get_height();
