@@ -27,7 +27,7 @@ class Instructions_State : public Widget_Gamestate {
 
 public:
   Instructions_State()
-    : Widget_Gamestate(make_pair(Point2f(0.0f, 0.0f), Point2f(800.0f, 600.0f)))
+    : Widget_Gamestate(make_pair(Point2f(0.0f, 0.0f), Point2f(float(RES_HORIZ), float(RES_VERT))))
   {
   }
 
@@ -64,20 +64,14 @@ private:
   void render() {
     Widget_Gamestate::render();
 
-    Zeni::Font &fr = get_Fonts()["title"];
+    Quadrilateral<Vertex2f_Texture> quad(Vertex2f_Texture(Point2f(), Point2f(0.0f, 0.0f)),
+                                         Vertex2f_Texture(Point2f(0.0f, float(RES_VERT)), Point2f(0.0f, 0.703125f)),
+                                         Vertex2f_Texture(Point2f(float(RES_HORIZ), float(RES_VERT)), Point2f(0.625f, 0.703125f)),
+                                         Vertex2f_Texture(Point2f(float(RES_HORIZ), 0.0f), Point2f(0.625f, 0.0f)));
+    Material mat("instructions");
+    quad.lend_Material(&mat);
 
-    fr.render_text(
-#if defined(_WINDOWS)
-                   "ALT+F4"
-#elif defined(_MACOSX)
-                   "Apple+Q"
-#else
-                   "Ctrl+Q"
-#endif
-                           " to Quit",
-                   Point2f(400.0f, 300.0f - 0.5f * fr.get_text_height()),
-                   get_Colors()["title_text"],
-                   ZENI_CENTER);
+    get_Video().render(quad);
   }
 };
 
@@ -270,7 +264,7 @@ class Bootstrap {
     }
 
     Our_Title_State()
-      : Title_State<LevelIntroState, Instructions_State>("Dismantled Demon\nDisconnection")
+      : Title_State<LevelIntroState, Instructions_State>("Dismantled Demon\nDistribution, Inc.")
     {
       m_widgets.unlend_Widget(play_button);
       m_widgets.unlend_Widget(instructions_button);
@@ -296,7 +290,7 @@ class Bootstrap {
 
   class Gamestate_One_Initializer : public Gamestate_Zero_Initializer {
     virtual Gamestate_Base * operator()() {
-      Window::set_title("Dismantled Demon Disconnection");
+      Window::set_title("Dismantled Demon Distribution, Inc.");
 
       get_Controllers();
       get_Video();
