@@ -1,3 +1,4 @@
+levels/switchbacks.txt
 levels/castle.txt
 levels/kirill_level1.txt
 levels/wsoft.txt
