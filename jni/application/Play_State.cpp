@@ -25,6 +25,7 @@ Play_State::Play_State(const int &level_number)
   m_grid(Zeni::Point2i(50, 32), Vector2f((RES_HORIZ - 50 * TILE_SIZE) / 2.0f, (RES_VERT - 32 * TILE_SIZE) / 2.0f), false),
 	m_time_passed(0.0f),
   m_time_to_process(0.0f),
+  m_time_processed(0.0f),
 	m_max_time_step(1.0f / 60.0f), // make the largest physics step 1/30 of a second
 	m_max_time_steps(10.0f), // allow no more than 10 physics steps per frame,
   m_powerseal(0)
@@ -73,6 +74,13 @@ Play_State::Play_State(const int &level_number)
   m_player.set_acceleration(Vector2f(0.0f, 32.0f));
 	
 	//m_crawler = Crawler(Point2f(512, 256), Crawler::MOVING_LEFT);
+  
+  m_time_to_failure.push_back(-1.0f);
+  m_time_to_failure.push_back(75.0f);
+  m_time_to_failure.push_back(60.0f);
+  m_time_to_failure.push_back(45.0f);
+  m_time_to_failure.push_back(30.0f);
+  m_time_to_failure.push_back(15.0f);
 
   get_Sound().set_BGM("music/48hr_music1_1");
   get_Sound().set_BGM_looping(true);
@@ -102,7 +110,7 @@ void Play_State::on_uncover() {
 void Play_State::on_pop() {
 	get_Controllers().reset_vibration_all();
 
-  get_Video().set_clear_Color(Color(1.0f, 0.0f, 0.0f, 0.0f));
+  //get_Video().set_clear_Color(Color(1.0f, 0.0f, 0.0f, 0.0f));
 
   m_chrono.stop();
 
@@ -200,6 +208,7 @@ void Play_State::perform_logic()
 	{
 		step(m_max_time_step);
 		m_time_to_process -= m_max_time_step;
+    m_time_processed += m_max_time_step;
 	}
 
 	/* Simple physics update
@@ -219,6 +228,7 @@ void Play_State::perform_logic()
 	//{
 	//	step(m_time_to_process);
 	//	m_time_passed = 0.0f;
+  //  m_time_processed += m_time_to_process;
 	//}
 }
 
@@ -551,7 +561,7 @@ void Play_State::step(const float &time_step)
 }
 
 void Play_State::prerender() {
-	get_Video().set_clear_Color(Color());
+	//get_Video().set_clear_Color(Color());
 }
 
 void Play_State::render() {
@@ -560,6 +570,12 @@ void Play_State::render() {
   vr.set_2d(make_pair(Point2f(), Point2f(RES_HORIZ, RES_VERT)), true);
   
 	//vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(TILE_SIZE * m_grid.get_width(), TILE_SIZE * m_grid.get_height())), true);
+
+  Quadrilateral<Vertex2f_Color> bg(Vertex2f_Color(m_grid.get_render_offset(), Color()),
+                                   Vertex2f_Color(m_grid.get_render_offset() + Vector2f(0.0f, TILE_SIZE * 32.0f), Color()),
+                                   Vertex2f_Color(m_grid.get_render_offset() + Vector2f(TILE_SIZE * 50.0f, TILE_SIZE * 32.0f), Color()),
+                                   Vertex2f_Color(m_grid.get_render_offset() + Vector2f(TILE_SIZE * 50.0f, 0.0f), Color()));
+  vr.render(bg);
 
 	m_grid.render();
 
@@ -578,4 +594,9 @@ void Play_State::render() {
   {
 	  (*i)->render(m_grid.get_render_offset());
   }
+
+  if(m_player.get_powers().empty())
+    get_Fonts()["intro"].render_text("The world is safe... for now.", Point2f(), Color());
+  else
+    get_Fonts()["intro"].render_text(itoa(int(m_time_to_failure[m_player.get_powers().size()] - m_time_processed)), Point2f(), Color());
 }
