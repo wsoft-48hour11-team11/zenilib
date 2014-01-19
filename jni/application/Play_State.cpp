@@ -1,6 +1,9 @@
 #include "Play_State.h"
 
 #include "PowerSelect.h"
+#include "Portal.h"
+
+#include <memory>
 
 using namespace std;
 using namespace Zeni;
@@ -84,13 +87,22 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
     break;
 
   case ACTION_DEPOSIT:
-    if(confidence > 0.5f && m_powerseal) {
+    if(confidence > 0.5f && m_powerseal && !m_player.get_powers().empty()) {
       if(m_powerseal->getPower() != POWER_EMPTY) {
         m_player.add_power(m_powerseal->getPower());
         m_powerseal->setPower(POWER_EMPTY);
       }
-      else if(!m_player.get_powers().empty())
-        get_Game().push_state(new PowerSelect(this, &m_player, m_powerseal));
+      else {
+        if(m_player.get_powers().size() == 1) {
+          m_powerseal->setPower(m_player.get_powers()[0]);
+          m_player.remove_power(m_player.get_powers()[0]);
+
+          // Wincon unlocked
+          m_portal = std::make_shared<Portal>(Point2f(m_grid.get_spawn_player()));
+        }
+        else
+          get_Game().push_state(new PowerSelect(this, &m_player, m_powerseal));
+      }
     }
     break;
 
@@ -306,7 +318,9 @@ void Play_State::render() {
 
   for(auto it = m_power_seals.begin(); it != m_power_seals.end(); ++it)
     it->render(m_grid.get_render_offset());
-
-	m_player.render(m_grid.get_render_offset());
+  
+  if(m_portal)
+    m_portal->render(m_grid.get_render_offset());
 	m_crawler.render(m_grid.get_render_offset());
+	m_player.render(m_grid.get_render_offset());
 }

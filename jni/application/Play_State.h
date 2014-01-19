@@ -8,6 +8,7 @@
 #include "Crawler.h"
 #include "PowerSeal.h"
 #include "GameSingleton.h"
+#include "Portal.h"
 
 class Play_State : public Zeni::Gamestate_II {
 	  Play_State(const Play_State &);
@@ -47,6 +48,8 @@ class Play_State : public Zeni::Gamestate_II {
 
 	std::list<Enemy*> m_enemies;
 	  Crawler m_crawler;
+
+    std::shared_ptr<Portal> m_portal;
 };
 
 #endif
