@@ -148,10 +148,39 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
   case ACTION_DEATH_RAY:
 	if (m_player.has_power(POWER_DEATHRAY) && confidence == 1.0)
 	{
-    m_deathrays.push_back(new DeathRay(m_player.get_position(), m_player.moving_right ? DeathRay::MOVING_RIGHT : DeathRay::MOVING_LEFT));
+		m_deathrays.push_back(new DeathRay(m_player.get_position(), m_player.moving_right ? DeathRay::MOVING_RIGHT : DeathRay::MOVING_LEFT));
 	}
 	break;
 
+  case ACTION_TELEPORT:
+	if (m_player.has_power(POWER_TELEPORT) && confidence == 1.0)
+	{
+		Point2i grid_pos = m_player.grid_pos();
+		Point2i next_grid_pos = grid_pos; 
+		if (m_player.moving_right)
+		{
+			//Teleport right
+			do
+			{
+				next_grid_pos = Point2i(next_grid_pos.x + 1, next_grid_pos.y);
+			} while(next_grid_pos.x < m_grid.get_width() && m_grid[next_grid_pos.y][next_grid_pos.x] != TILE_EMPTY);
+		}
+		else
+		{
+			//Teleport left
+			do
+			{
+				next_grid_pos = Point2i(next_grid_pos.x - 1, next_grid_pos.y);
+			} while(next_grid_pos.x >= 0 && m_grid[next_grid_pos.y][next_grid_pos.x] != TILE_EMPTY);
+		}
+
+		if (next_grid_pos.x >= 0 &&	next_grid_pos.x < m_grid.get_width())
+		{
+			m_player.set_position(Point2f(next_grid_pos.x, next_grid_pos.y));
+		}
+	}
+	break;
+  
   case ACTION_DEPOSIT:
     if(confidence > 0.5f && m_powerseal && !m_player.get_powers().empty()) {
       if(m_powerseal->getPower() != POWER_EMPTY) {
