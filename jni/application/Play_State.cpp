@@ -8,6 +8,7 @@
 #include "PowerSelect.h"
 #include "Portal.h"
 #include "LevelIntroState.h"
+#include "VictoryState.h"
 
 #include <memory>
 
@@ -46,16 +47,16 @@ Play_State::Play_State(const int &level_number)
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_w), ACTION_JUMP);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_a), ACTION_LEFT);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_d), ACTION_RIGHT);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_j), ACTION_DEPOSIT);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_k), ACTION_DEATH_RAY);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_l), ACTION_TELEPORT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_j), ACTION_DEATH_RAY);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_k), ACTION_TELEPORT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_l), ACTION_DEPOSIT);
 
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_UP), ACTION_JUMP);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), ACTION_LEFT);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RIGHT), ACTION_RIGHT);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LCTRL), ACTION_DEPOSIT);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LSHIFT), ACTION_DEATH_RAY);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LALT), ACTION_TELEPORT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LALT), ACTION_DEATH_RAY);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LCTRL), ACTION_TELEPORT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LSHIFT), ACTION_DEPOSIT);
 
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SPACE), ACTION_JUMP);
   
@@ -165,7 +166,7 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 	if (m_player.has_power(POWER_DEATHRAY) && confidence == 1.0)
 	{
 		m_deathrays.push_back(new DeathRay(m_player.get_position(), m_player.moving_right ? DeathRay::MOVING_RIGHT : DeathRay::MOVING_LEFT));
-    Zeni::play_sound("deathray");
+    Zeni::play_sound("deathray", 1.0f, 0.7f);
 	}
 	break;
 
@@ -203,8 +204,9 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 			m_animation_objects.push_back(new BamfCloudReverse(Point2f(float(next_grid_pos.x), float(next_grid_pos.y))));
 			m_player.set_position(Point2f(float(next_grid_pos.x), float(next_grid_pos.y)));
 		}
+
+    Zeni::play_sound("portal", 1.0f, 0.7f);
 	}
-  Zeni::play_sound("portal");
 	break;
   
   case ACTION_DEPOSIT:
@@ -220,6 +222,8 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 
           // Wincon unlocked
           m_portal = std::make_shared<Portal>(Point2f(m_grid.get_spawn_player()));
+          Zeni::play_sound("chest", 1.0f, 0.7f);
+          Zeni::play_sound("portal", 1.0f, 0.7f);
         }
         else
           get_Game().push_state(new PowerSelect(this, &m_player, m_powerseal));
@@ -370,9 +374,11 @@ void Play_State::step(const float &time_step)
               m_player.state = Player::STATE_ON_WALL;
             }
             else if(push_up < push_down) {
-              m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
-              m_player.state = Player::STATE_ON_GROUND;
-              m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
+              if(m_player.state != Player::STATE_ON_WALL || pgp.x == i) {
+                m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
+                m_player.state = Player::STATE_ON_GROUND;
+                m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
+              }
             }
             else {
               m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
@@ -568,8 +574,13 @@ void Play_State::step(const float &time_step)
 
           case TILE_SPAWN_PLAYER:
             if(m_portal) {
+              Zeni::play_sound("portal", 1.0f, 0.7f);
+              get_Sound().update();
               get_Game().pop_state();
-              get_Game().push_state(new LevelIntroState(m_level_number + 1));
+              if(m_level_number + 1 == GameSingleton::getInstance()->level_list.size())
+                get_Game().push_state(new VictoryState);
+              else
+                get_Game().push_state(new LevelIntroState(m_level_number + 1));
             }
             break;
 
@@ -613,7 +624,7 @@ void Play_State::step(const float &time_step)
 		  if (m_player.collides_with((*i)->getCollisionBox()))
 		  {
 			if(m_player.has_power(POWER_SHADOW)) {
-				Zeni::play_sound("shadow");
+        (*i)->play_sound();
 			}
 			else {
 				(*i)->applyCollisionEffect(m_player);
@@ -625,7 +636,7 @@ void Play_State::step(const float &time_step)
 				m_player.killPlayer();
 				/*get_Game().pop_state();
 				get_Game().push_state(new DefeatState(m_level_number));*/
-				Zeni::play_sound("deathByEnemy");
+				Zeni::play_sound("deathByEnemy", 1.0f, 1.0f);
 			}
 		  }
 	  }
@@ -735,7 +746,7 @@ void Play_State::render() {
   }
 
   if(m_player.get_powers().empty())
-    get_Fonts()["intro"].render_text("The world is safe... for now.", Point2f(), Color());
+    get_Fonts()["main_game"].render_text("The world is safe... for now.", Point2f(RES_HORIZ / 2.0f, 10.0f), get_Colors()["red"], ZENI_CENTER);
   else
-    get_Fonts()["intro"].render_text(itoa(int(m_time_to_failure[m_player.get_powers().size()] - m_time_processed)), Point2f(), Color());
+    get_Fonts()["main_game"].render_text(itoa(int(m_time_to_failure[m_player.get_powers().size()] - m_time_processed)) + " Seconds Left!", Point2f(RES_HORIZ / 2.0f, 10.0f), get_Colors()["green"], ZENI_CENTER);
 }

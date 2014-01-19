@@ -1,18 +1,16 @@
-#include "LevelIntroState.h"
+#include "VictoryState.h"
 
 #include <fstream>
 
 #include "common.h"
 #include "GameSingleton.h"
 #include "Play_State.h"
-#include "LevelStartState.h"
 
 using namespace std;
 using namespace Zeni;
 
-LevelIntroState::LevelIntroState(const int &level)
-  : m_level_number(level),
-	tb(Point2f(0, 0), Point2f(RES_HORIZ, RES_VERT),"intro", "", get_Colors()["white"]),
+VictoryState::VictoryState()
+  : tb(Point2f(0, 0), Point2f(RES_HORIZ, RES_VERT),"intro", "", get_Colors()["white"]),
 	tb2(Point2f(RES_HORIZ - 128.0f, RES_VERT - 32.0f), Point2f(RES_HORIZ, RES_VERT),"intro", "Press Enter", get_Colors()["white"])
 {
 	//Set up text boxes
@@ -23,12 +21,15 @@ LevelIntroState::LevelIntroState(const int &level)
 	//Setup actions
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RETURN), 1);	//ENTER
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SPACE), 1);	//ENTER
-  set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_BACK), 1);	//ENTER
   set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_START), 1);	//ENTER
   set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_A), 1);	//ENTER
 
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), 2);	//Give up
+  set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_BACK), 2);	//Give up
+  set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_B), 2);	//Give up
+
 	//Load text
-	String filepath = "text/LevelIntro" + itoa(level) + ".txt";
+	String filepath = "text/Victory.txt";
 	char c;
 	ifstream fin;
 	fin.open(filepath.c_str(), ios::in);
@@ -42,50 +43,45 @@ LevelIntroState::LevelIntroState(const int &level)
 	tb.set_text(m_text);
 }
 
-LevelIntroState::~LevelIntroState()
+VictoryState::~VictoryState()
 {
 }
 
-void LevelIntroState::on_cover()
+void VictoryState::on_cover()
 {
 }
 
-void LevelIntroState::on_uncover()
+void VictoryState::on_uncover()
 {
 }
 
-void LevelIntroState::on_push()
+void VictoryState::on_push()
 {
 }
 
-void LevelIntroState::on_pop()
+void VictoryState::on_pop()
 {
 }
 
-void LevelIntroState::on_event(const Zeni::Zeni_Input_ID &/*id*/, const float &confidence, const int &action)	
+void VictoryState::on_event(const Zeni::Zeni_Input_ID &/*id*/, const float &confidence, const int &action)	
 {
-	if (action == 1)
+	if (action == 1 || action == 2)
 	{
 		//ENTER
 		if (confidence == 1.0)
-		{
 			get_Game().pop_state();
-      Gamestate gs(new Play_State(m_level_number));
-      get_Game().push_state(gs);
-      get_Game().push_state(new LevelStartState(gs));
-		}
 	}
 }
 
-void LevelIntroState::perform_logic()
+void VictoryState::perform_logic()
 {
 }
 
-void LevelIntroState::step(const float &/*time_step*/)
+void VictoryState::step(const float &/*time_step*/)
 {
 }
 
-void LevelIntroState::render()
+void VictoryState::render()
 {
 	Video &vr = get_Video();
 	Colors &cr = get_Colors();

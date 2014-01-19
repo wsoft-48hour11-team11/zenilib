@@ -20,11 +20,20 @@ class Enemy : public Object {
 		bool getDeleteThis();
 		void setDeleteThis(bool deleteThis);
 
+    void play_sound() {
+      if(!m_shadow_source.is_playing() || m_shadow_source.get_time() >= 2.0f) {
+        m_shadow_source.set_time(0.0f);
+        m_shadow_source.play();
+      }
+    }
+
 	protected:
 		void setCollisionBox(Zeni::Point2f upper_left, Zeni::Point2f lower_right);
 		Zeni::Point2f m_collision_ul;
 		Zeni::Point2f m_collision_lr;
 		bool m_delete;
+
+    Zeni::Sound_Source m_shadow_source;
 };
 
 

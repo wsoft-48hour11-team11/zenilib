@@ -88,7 +88,7 @@ void PowerSelect::on_event(const Zeni::Zeni_Input_ID &/*id*/, const float &confi
 			m_powerseal->setPower(lost_power);
 			m_player->remove_power(lost_power);
 			get_Game().pop_state();
-      Zeni::play_sound("chest");
+      Zeni::play_sound("chest", 1.0f, 0.7f);
 		}
 	}
 	if (action == 4)
