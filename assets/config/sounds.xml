@@ -31,6 +31,9 @@ HOWTO:  To convert between types, or to downmix to mono,
   <chest>
     <filepath>sfx/chest</filepath>
   </chest>
+  <deathByDemon>
+    <filepath>sfx/deathByDemon</filepath>
+  </deathByDemon>
   <deathByEnemy>
     <filepath>sfx/deathByEnemy</filepath>
   </deathByEnemy>

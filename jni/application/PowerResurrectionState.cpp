@@ -158,6 +158,7 @@ void PowerResurrectionState::step(const float &time_step)
 	{
 		m_game_over = true;
 		m_death_countdown = 5.0f;
+    Zeni::play_sound("deathByDemon", 1.0f, 0.7f);
 	}
 }
 
