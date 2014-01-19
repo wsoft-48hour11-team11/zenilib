@@ -31,6 +31,7 @@ Play_State::Play_State(const int &level_number)
   m_powerseal(0)
 {
 	set_pausable(true);
+  set_firing_missed_events(true);
   
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), ACTION_ESCAPE);
   set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_BACK), ACTION_ESCAPE);
@@ -92,6 +93,8 @@ Play_State::~Play_State() {
 }
 
 void Play_State::on_push() {
+  Gamestate_II::on_push();
+
 	get_Window().set_mouse_state(Window::MOUSE_HIDDEN);
 
   m_chrono.start();
@@ -104,6 +107,8 @@ void Play_State::on_cover() {
 }
 
 void Play_State::on_uncover() {
+  Gamestate_II::on_uncover();
+
   m_chrono.start();
 }
 
