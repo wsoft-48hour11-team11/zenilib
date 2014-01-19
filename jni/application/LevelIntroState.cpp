@@ -60,7 +60,7 @@ void LevelIntroState::on_pop()
 {
 }
 
-void LevelIntroState::on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action)	
+void LevelIntroState::on_event(const Zeni::Zeni_Input_ID &/*id*/, const float &confidence, const int &action)	
 {
 	if (action == 1)
 	{
@@ -77,7 +77,7 @@ void LevelIntroState::perform_logic()
 {
 }
 
-void LevelIntroState::step(const float &time_step)
+void LevelIntroState::step(const float &/*time_step*/)
 {
 }
 

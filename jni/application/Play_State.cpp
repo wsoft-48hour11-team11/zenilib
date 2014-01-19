@@ -123,13 +123,13 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
   case ACTION_LEFT:
     m_player.left = confidence > 0.5f;
     m_player.moving_right = m_player.left ? false : m_player.right;
-    m_player.left_right = m_player.right - m_player.left;
+    m_player.left_right = float(m_player.right - m_player.left);
     break;
 
   case ACTION_RIGHT:
     m_player.right = confidence > 0.5f;
     m_player.moving_right = m_player.right ? true : !m_player.left;
-    m_player.left_right = m_player.right - m_player.left;
+    m_player.left_right = float(m_player.right - m_player.left);
     break;
 
   case ACTION_LEFT_RIGHT:
@@ -240,17 +240,17 @@ void Play_State::step(const float &time_step)
   m_powerseal = 0;
 
   const auto pcb = m_player.collision_box();
-  const Collision::Parallelepiped player_ppd(Point3f(pcb.first), Vector3f(pcb.second.y), Vector3f(pcb.second.x), Vector3f(0,0,1.0f));
+  const auto pgp = m_player.grid_pos();
   for(int k = 0; k != 1; ++k) {
     for(int j = int(pcb.first.y) - 2; j != int(pcb.second.y) + 2; ++j) {
-      if(j < 0 || j >= height)
+      if(j < 0 || j >= int(height))
         continue;
 
       for(int i = int(pcb.first.x) - 2; i != int(pcb.second.x) + 2; ++i) {
-        if(i < 0 || i >= width)
+        if(i < 0 || i >= int(width))
           continue;
 
-        if(m_player.collides_with(std::make_pair(Point2f(i, j), Point2f(i + 1, j + 1)))) {
+        if(m_player.collides_with(std::make_pair(Point2f(float(i), float(j)), Point2f(i + 1.0f, j + 1.0f)))) {
           switch(m_grid[j][i]) {
           case TILE_FULL:
             {
@@ -258,7 +258,7 @@ void Play_State::step(const float &time_step)
               const float push_right = fabs((i + 1) - pcb.first.x);
               const float push_up = fabs(j - pcb.second.y);
               const float push_down = fabs((j + 1) - pcb.first.y);
-
+              
               if(push_up > 0.15f && push_down > 0.15f) {
                 if(push_left < push_right) {
                   if(pcb.second.x > i) {
@@ -274,7 +274,7 @@ void Play_State::step(const float &time_step)
                 }
                 m_player.state = Player::STATE_ON_WALL;
               }
-              else if(push_left > 0.15f && push_right > 0.15f) {
+              if(push_left > 0.15f && push_right > 0.15f) {
                 if(push_up < push_down) {
                   if(pcb.second.y > j) {
                     m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
@@ -294,7 +294,7 @@ void Play_State::step(const float &time_step)
 
           case TILE_LOWER_LEFT:
             {
-              const Collision::Line_Segment ls(Point3f(i, j, 0.0f), Point3f(i + 1.0f, j + 1.0f, 0.0f));
+              const Collision::Line_Segment ls(Point3f(float(i), float(j), 0.0f), Point3f(i + 1.0f, j + 1.0f, 0.0f));
               const auto np = ls.nearest_point(Point3f(pcb.first.x, pcb.second.y, 0.0f));
               if(np.second >= 0.0f && np.second < 1.0f) {
                 const bool below = Vector3f(-1.0f, 1.0f, 0.0f).normalized() *
@@ -310,9 +310,9 @@ void Play_State::step(const float &time_step)
 
                   const Point2f top(i + rel.x, j + rel.x);
                   const Point2f bottom(i + rel.x, j + 1.0f);
-                  const Point2f left(i, j + rel.y);
+                  //const Point2f left(float(i), j + rel.y);
               
-                  const float push_left = fabs(left.x - pcb.second.x);
+                  //const float push_left = fabs(left.x - pcb.second.x);
                   const float push_up = fabs(top.y - pcb.second.y);
                   const float push_down = fabs(bottom.y - pcb.first.y);
               
@@ -337,7 +337,7 @@ void Play_State::step(const float &time_step)
 
           case TILE_LOWER_RIGHT:
             {
-              const Collision::Line_Segment ls(Point3f(i, j + 1.0f, 0.0f), Point3f(i + 1.0f, j, 0.0f));
+              const Collision::Line_Segment ls(Point3f(float(i), j + 1.0f, 0.0f), Point3f(i + 1.0f, float(j), 0.0f));
               const auto np = ls.nearest_point(Point3f(pcb.second.x, pcb.second.y, 0.0f));
               if(np.second >= 0.0f && np.second < 1.0f) {
                 const bool below = Vector3f(1.0f, 1.0f, 0.0f).normalized() *
@@ -353,9 +353,9 @@ void Play_State::step(const float &time_step)
 
                   const Point2f top(i + rel.x, j + 1.0f - rel.x);
                   const Point2f bottom(i + rel.x, j + 1.0f);
-                  const Point2f right(i + 1.0f, j + rel.y);
+                  //const Point2f right(i + 1.0f, j + rel.y);
               
-                  const float push_right = fabs(right.x - pcb.first.x);
+                  //const float push_right = fabs(right.x - pcb.first.x);
                   const float push_up = fabs(top.y - pcb.second.y);
                   const float push_down = fabs(bottom.y - pcb.first.y);
               
@@ -380,7 +380,7 @@ void Play_State::step(const float &time_step)
 
           case TILE_UPPER_LEFT:
             {
-              const Collision::Line_Segment ls(Point3f(i, j + 1.0f, 0.0f), Point3f(i + 1.0f, j, 0.0f));
+              const Collision::Line_Segment ls(Point3f(float(i), j + 1.0f, 0.0f), Point3f(i + 1.0f, float(j), 0.0f));
               const auto np = ls.nearest_point(Point3f(pcb.first.x, pcb.first.y, 0.0f));
               if(np.second >= 0.0f && np.second < 1.0f) {
                 const bool above = Vector3f(-1.0f, -1.0f, 0.0f).normalized() *
@@ -394,11 +394,11 @@ void Play_State::step(const float &time_step)
                   if(pcb.second.y < j)
                     rel.y = 0.0f;
 
-                  const Point2f top(i + rel.x, j);
+                  const Point2f top(i + rel.x, float(j));
                   const Point2f bottom(i + rel.x, j + 1.0f - rel.x);
-                  const Point2f left(i, j + rel.y);
+                  //const Point2f left(float(i), j + rel.y);
               
-                  const float push_left = fabs(left.x - pcb.second.x);
+                  //const float push_left = fabs(left.x - pcb.second.x);
                   const float push_up = fabs(top.y - pcb.second.y);
                   const float push_down = fabs(bottom.y - pcb.first.y);
               
@@ -423,7 +423,7 @@ void Play_State::step(const float &time_step)
 
           case TILE_UPPER_RIGHT:
             {
-              const Collision::Line_Segment ls(Point3f(i, j, 0.0f), Point3f(i + 1.0f, j + 1.0f, 0.0f));
+              const Collision::Line_Segment ls(Point3f(float(i), float(j), 0.0f), Point3f(i + 1.0f, j + 1.0f, 0.0f));
               const auto np = ls.nearest_point(Point3f(pcb.second.x, pcb.first.y, 0.0f));
               if(np.second >= 0.0f && np.second < 1.0f) {
                 const bool above = Vector3f(1.0f, -1.0f, 0.0f).normalized() *
@@ -437,11 +437,11 @@ void Play_State::step(const float &time_step)
                   if(pcb.first.y < j)
                     rel.y = 0.0f;
 
-                  const Point2f top(i + rel.x, j);
+                  const Point2f top(i + rel.x, float(j));
                   const Point2f bottom(i + rel.x, j + rel.x);
-                  const Point2f right(i + 1.0f, j + rel.y);
+                  //const Point2f right(i + 1.0f, j + rel.y);
               
-                  const float push_right = fabs(right.x - pcb.first.x);
+                  //const float push_right = fabs(right.x - pcb.first.x);
                   const float push_up = fabs(top.y - pcb.second.y);
                   const float push_down = fabs(bottom.y - pcb.first.y);
               
