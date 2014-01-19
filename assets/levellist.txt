@@ -1,5 +1,6 @@
-levels/switchbacks.txt
 levels/castle.txt
 levels/kirill_level1.txt
+levels/stairs.txt
+levels/switchbacks.txt
+levels/tomb.txt
 levels/wsoft.txt
-test_level.txt
