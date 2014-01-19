@@ -14,7 +14,9 @@ enum Action_ID {ACTION_ESCAPE = 1,
                 ACTION_JUMP,
                 ACTION_LEFT,
                 ACTION_RIGHT,
-                ACTION_DEPOSIT
+                ACTION_DEPOSIT,
+                ACTION_DEATH_RAY,
+                ACTION_TELEPORT
                };
 
 Play_State::Play_State(const int &level_number)
@@ -37,6 +39,11 @@ Play_State::Play_State(const int &level_number)
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SPACE), ACTION_JUMP);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LCTRL), ACTION_DEPOSIT);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_j), ACTION_DEPOSIT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LCTRL), ACTION_DEPOSIT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_k), ACTION_DEATH_RAY);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LSHIFT), ACTION_DEATH_RAY);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_l), ACTION_TELEPORT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LALT), ACTION_TELEPORT);
 
 	//m_grid.load("test_level.txt");
 	GameSingleton* sing = GameSingleton::getInstance();
