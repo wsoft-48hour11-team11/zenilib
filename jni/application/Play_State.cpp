@@ -158,6 +158,7 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 	if (m_player.has_power(POWER_DEATHRAY) && confidence == 1.0)
 	{
 		m_deathrays.push_back(new DeathRay(m_player.get_position(), m_player.moving_right ? DeathRay::MOVING_RIGHT : DeathRay::MOVING_LEFT));
+    Zeni::play_sound("deathray");
 	}
 	break;
 
@@ -196,6 +197,7 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 			m_player.set_position(Point2f(float(next_grid_pos.x), float(next_grid_pos.y)));
 		}
 	}
+  Zeni::play_sound("portal");
 	break;
   
   case ACTION_DEPOSIT:
@@ -567,12 +569,14 @@ void Play_State::step(const float &time_step)
   }
 
   //Enemy collisions with Player
-  if (!m_player.has_power(POWER_SHADOW))
-  {
-	  for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
-	  {
-		  if (m_player.collides_with((*i)->getCollisionBox()))
-		  {
+	for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
+	{
+		if (m_player.collides_with((*i)->getCollisionBox()))
+		{
+      if(m_player.has_power(POWER_SHADOW)) {
+        Zeni::play_sound("shadow");
+      }
+      else {
 			  (*i)->applyCollisionEffect(m_player);
 
 			  ////Kill whatever collided with the player
@@ -580,9 +584,12 @@ void Play_State::step(const float &time_step)
 
         get_Game().pop_state();
         get_Game().push_state(new DefeatState(m_level_number));
-		  }
-	  }
-  }
+        Zeni::play_sound("deathByEnemy");
+      }
+
+      break;
+		}
+	}
 
   //Deathray collisions
   for (list<DeathRay*>::iterator j = m_deathrays.begin(); j != m_deathrays.end(); j++)
