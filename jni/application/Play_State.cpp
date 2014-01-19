@@ -356,6 +356,7 @@ void Play_State::step(const float &time_step)
                   const float push_down = fabs(bottom.y - pcb.first.y);
               
                   //if(push_left > 0.05f) {
+                  if(pgp.x <= i) {
                     if(push_up < push_down) {
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
                       m_player.state = Player::STATE_ON_LOWER_LEFT;
@@ -363,7 +364,7 @@ void Play_State::step(const float &time_step)
                     else
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
                     m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
-                  //}
+                  }
                   //else if(push_up > 0.25f && push_down > 0.25f) {
                   //  m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
                   //  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
@@ -399,6 +400,7 @@ void Play_State::step(const float &time_step)
                   const float push_down = fabs(bottom.y - pcb.first.y);
               
                   //if(push_right > 0.05f) {
+                  if(pgp.x >= i) {
                     if(push_up < push_down) {
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
                       m_player.state = Player::STATE_ON_LOWER_RIGHT;
@@ -406,7 +408,7 @@ void Play_State::step(const float &time_step)
                     else
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
                     m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
-                  //}
+                  }
                   //else if(push_up > 0.25f && push_down > 0.25f) {
                   //  m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
                   //  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
@@ -442,6 +444,7 @@ void Play_State::step(const float &time_step)
                   const float push_down = fabs(bottom.y - pcb.first.y);
               
                   //if(push_left > 0.05f) {
+                  if(pgp.x <= i) {
                     if(push_up < push_down) {
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
                       m_player.state = Player::STATE_ON_LOWER_LEFT;
@@ -449,7 +452,7 @@ void Play_State::step(const float &time_step)
                     else
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
                     m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
-                  //}
+                  }
                   //else if(push_up > 0.25f && push_down > 0.25f) {
                   //  m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
                   //  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
@@ -485,6 +488,7 @@ void Play_State::step(const float &time_step)
                   const float push_down = fabs(bottom.y - pcb.first.y);
               
                   //if(push_right > 0.05f) {
+                  if(pgp.x >= i) {
                     if(push_up < push_down) {
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
                       m_player.state = Player::STATE_ON_LOWER_RIGHT;
@@ -492,7 +496,7 @@ void Play_State::step(const float &time_step)
                     else
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
                     m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
-                  //}
+                  }
                   //else if(push_up > 0.25f && push_down > 0.25f) {
                   //  m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
                   //  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
