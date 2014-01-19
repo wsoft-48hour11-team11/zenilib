@@ -33,6 +33,11 @@ public:
     return std::make_pair(get_position(), get_position() + Zeni::Vector2f(1.0f, 1.0f));
   }
 
+  Zeni::Point2i grid_pos() const {
+    const auto cb = collision_box();
+    return Zeni::Point2i(int(0.5f * (cb.first.x + cb.second.x)), int(0.5f * (cb.first.y + cb.second.y)));
+  }
+
   bool collides_with(const std::pair<Zeni::Point2f, Zeni::Point2f> &rhs) const {
     const auto lhs = collision_box();
 
