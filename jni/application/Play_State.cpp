@@ -1,5 +1,7 @@
 #include "Play_State.h"
 
+#include "BamfCloud.h"
+#include "BamfCloudReverse.h"
 #include "Crawler.h"
 #include "PowerSelect.h"
 #include "Portal.h"
@@ -182,6 +184,8 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 
 		if (next_grid_pos.x >= 0 &&	next_grid_pos.x < m_grid.get_width())
 		{
+			m_animation_objects.push_back(new BamfCloud(Point2f(grid_pos.x, grid_pos.y)));
+			m_animation_objects.push_back(new BamfCloudReverse(Point2f(next_grid_pos.x, next_grid_pos.y)));
 			m_player.set_position(Point2f(next_grid_pos.x, next_grid_pos.y));
 		}
 	}
@@ -290,6 +294,9 @@ void Play_State::step(const float &time_step)
 
   for (list<DeathRay*>::iterator it = m_deathrays.begin(); it != m_deathrays.end(); ++it)
 	  (*it)->step(time_step);
+
+  for (list<AnimationObject*>::iterator i = m_animation_objects.begin(); i != m_animation_objects.end(); i++)
+	  (*i)->step(time_step);
 
   const size_t width = m_grid.get_width();
   const size_t height = m_grid.get_height();
@@ -609,6 +616,22 @@ void Play_State::step(const float &time_step)
 	  }
   }
 
+  //Clean up any animation objects that should be deleted
+  list<AnimationObject*>::iterator k = m_animation_objects.begin();
+  while(k != m_animation_objects.end())
+  {
+	  if ((*k)->getDeleteThis())
+	  {
+		  AnimationObject* temp = *k;
+		  k = m_animation_objects.erase(k);
+		  delete temp;
+	  }
+	  else
+	  {
+		  k++;
+	  }
+  }
+
 }
 
 void Play_State::prerender() {
@@ -636,6 +659,11 @@ void Play_State::render() {
   if(m_portal)
     m_portal->render(m_grid.get_render_offset());
 	m_player.render(m_grid.get_render_offset());
+
+  for (list<AnimationObject*>::iterator i = m_animation_objects.begin(); i != m_animation_objects.end(); i++)
+  {
+	  (*i)->render(m_grid.get_render_offset());
+  }
 
   for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
   {

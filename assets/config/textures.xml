@@ -50,6 +50,26 @@ The following things are unsupported:
     <filepath>textures/DeathRay.png</filepath>
     <tile>0</tile>
   </deathray>
+  <bamf1>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/bamf1.png</filepath>
+    <tile>0</tile>
+  </bamf1>
+  <bamf2>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/bamf2.png</filepath>
+    <tile>0</tile>
+  </bamf2>
+  <bamf3>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/bamf3.png</filepath>
+    <tile>0</tile>
+  </bamf3>
+  <bamf4>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/bamf4.png</filepath>
+    <tile>0</tile>
+  </bamf4>
   <tile_full>
     <is_sprite>0</is_sprite>
     <filepath>textures/solid.png</filepath>
