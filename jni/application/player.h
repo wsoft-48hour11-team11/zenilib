@@ -54,11 +54,19 @@ public:
   void add_power(const Power &power) {
     assert(!m_powers[power]);
     m_powers[power] = true;
+	if (power == POWER_SPEED)
+	{
+		m_speed *= 4;
+	}
   }
 
   void remove_power(const Power &power) {
     assert(m_powers[power]);
     m_powers[power] = false;
+	if (power == POWER_SPEED)
+	{
+		m_speed *= 0.25;
+	}
   }
 
   void step(const float &time_step) {

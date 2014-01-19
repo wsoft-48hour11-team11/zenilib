@@ -45,6 +45,7 @@ class Play_State : public Zeni::Gamestate_II {
     std::list<PowerSeal> m_power_seals;
     PowerSeal * m_powerseal;
 
+	std::list<Enemy*> m_enemies;
 	  Crawler m_crawler;
 };
 

@@ -155,6 +155,10 @@ void Play_State::perform_logic()
 void Play_State::step(const float &time_step)
 {
   m_player.step(time_step);
+  for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
+  {
+	  (*i)->step(time_step);
+  }
 	m_crawler.step(time_step);
 
   const size_t width = m_grid.get_width();
@@ -279,6 +283,11 @@ void Play_State::step(const float &time_step)
         }
       }
     }
+  }
+
+  //Enemy collisions
+  if (!m_player.has_power(POWER_SHADOW))
+  {
   }
 }
 

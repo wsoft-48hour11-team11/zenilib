@@ -48,6 +48,7 @@ inline const char * const tile_asset(const Tile &tile, const bool &in_editor) {
     case TILE_LOWER_RIGHT:     return "tile_lower_right";
     case TILE_DEPOSIT:         return in_editor ? "tile_deposit" : 0;
     case TILE_SPAWN_PLAYER:    return in_editor ? "tile_spawn_player" : 0;
+	case TILE_SPAWN_CRAWLER:    return in_editor ? "tile_spawn_crawler" : 0;
     default:                   assert(!"Tile");
                                return 0;
   }
