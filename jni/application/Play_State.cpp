@@ -1,5 +1,7 @@
 #include "Play_State.h"
 
+#include "BamfCloud.h"
+#include "BamfCloudReverse.h"
 #include "Crawler.h"
 #include "PowerSelect.h"
 #include "Portal.h"
@@ -31,6 +33,7 @@ Play_State::Play_State(const int &level_number)
   m_powerseal(0)
 {
 	set_pausable(true);
+  set_firing_missed_events(true);
   
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), ACTION_ESCAPE);
   set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_BACK), ACTION_ESCAPE);
@@ -92,6 +95,8 @@ Play_State::~Play_State() {
 }
 
 void Play_State::on_push() {
+  Gamestate_II::on_push();
+
 	get_Window().set_mouse_state(Window::MOUSE_HIDDEN);
 
   m_chrono.start();
@@ -104,6 +109,8 @@ void Play_State::on_cover() {
 }
 
 void Play_State::on_uncover() {
+  Gamestate_II::on_uncover();
+
   m_chrono.start();
 }
 
@@ -142,7 +149,8 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 
   case ACTION_LEFT_RIGHT:
     m_player.left_right = confidence;
-    m_player.moving_right = m_player.left_right >= 0.0f;
+    if(m_player.left_right != 0.0f)
+      m_player.moving_right = m_player.left_right > 0.0f;
     break;
 
   case ACTION_DEATH_RAY:
@@ -176,6 +184,8 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 
 		if (next_grid_pos.x >= 0 &&	next_grid_pos.x < m_grid.get_width())
 		{
+			m_animation_objects.push_back(new BamfCloud(Point2f(grid_pos.x, grid_pos.y)));
+			m_animation_objects.push_back(new BamfCloudReverse(Point2f(next_grid_pos.x, next_grid_pos.y)));
 			m_player.set_position(Point2f(next_grid_pos.x, next_grid_pos.y));
 		}
 	}
@@ -267,10 +277,25 @@ void Play_State::step(const float &time_step)
   if(m_player.get_velocity().magnitude() > 10.0f)
     m_player.set_velocity(m_player.get_velocity().normalized() * 10.0f);
 
-  for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
-	  (*i)->step(time_step);
+  for (list<Enemy*>::iterator it = m_enemies.begin(); it != m_enemies.end(); ++it) {
 
-  for (list<DeathRay*>::iterator i = m_deathrays.begin(); i != m_deathrays.end(); i++)
+    (*it)->step(time_step);
+    {
+      const auto egp = (*it)->grid_pos();
+      const int inc = (*it)->get_velocity().i > 0.0f ? 1 : -1;
+      const Tile next = m_grid.at(egp.y).at(egp.x + inc);
+      const Tile below = m_grid.at(egp.y + 1).at(egp.x + inc);
+      if(!(next == TILE_EMPTY || next == TILE_SPAWN_CRAWLER || next == TILE_DEPOSIT) || below != TILE_FULL)
+      {
+        (*it)->switch_direction();
+      }
+    }
+  }
+
+  for (list<DeathRay*>::iterator it = m_deathrays.begin(); it != m_deathrays.end(); ++it)
+	  (*it)->step(time_step);
+
+  for (list<AnimationObject*>::iterator i = m_animation_objects.begin(); i != m_animation_objects.end(); i++)
 	  (*i)->step(time_step);
 
   const size_t width = m_grid.get_width();
@@ -591,6 +616,22 @@ void Play_State::step(const float &time_step)
 	  }
   }
 
+  //Clean up any animation objects that should be deleted
+  list<AnimationObject*>::iterator k = m_animation_objects.begin();
+  while(k != m_animation_objects.end())
+  {
+	  if ((*k)->getDeleteThis())
+	  {
+		  AnimationObject* temp = *k;
+		  k = m_animation_objects.erase(k);
+		  delete temp;
+	  }
+	  else
+	  {
+		  k++;
+	  }
+  }
+
 }
 
 void Play_State::prerender() {
@@ -618,6 +659,11 @@ void Play_State::render() {
   if(m_portal)
     m_portal->render(m_grid.get_render_offset());
 	m_player.render(m_grid.get_render_offset());
+
+  for (list<AnimationObject*>::iterator i = m_animation_objects.begin(); i != m_animation_objects.end(); i++)
+  {
+	  (*i)->render(m_grid.get_render_offset());
+  }
 
   for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
   {
