@@ -48,7 +48,7 @@ Play_State::Play_State(const int &level_number)
 
 	//m_grid.load("test_level.txt");
 	GameSingleton* sing = GameSingleton::getInstance();
-	m_grid.load(sing->level_list[0]);
+	m_grid.load(sing->level_list.at(m_level_number));
 
   const auto seal_positions = m_grid.get_deposits();
   for(auto it = seal_positions.begin(); it != seal_positions.end(); ++it)
