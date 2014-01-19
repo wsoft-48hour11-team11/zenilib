@@ -91,9 +91,27 @@ class Bootstrap {
 
   class Our_Title_State : public Title_State<LevelIntroState, Instructions_State> {
   public:
+    class Play_Button_2 : public Text_Button {
+      Play_Button_2(const Play_Button_2 &);
+      Play_Button_2 & operator=(const Play_Button_2 &);
+
+    public:
+      Play_Button_2()
+        : Text_Button(Point2f(200.0f, 250.0f), Point2f(390.0f, 310.0f),
+                      "system_36_800x600", "Play")
+      {
+      }
+
+      void on_accept() {
+        Zeni::play_sound("menuButton", 1.0f, 0.7f);
+        get_Sound().update();
+        get_Game().push_state(new LevelIntroState());
+      }
+    } play_button_2;
+
     class Edit_Button : public Text_Button {
-      Edit_Button(const Play_Button &);
-      Edit_Button & operator=(const Play_Button &);
+      Edit_Button(const Edit_Button &);
+      Edit_Button & operator=(const Edit_Button &);
 
     public:
       Edit_Button()
@@ -103,9 +121,119 @@ class Bootstrap {
       }
 
       void on_accept() {
+        Zeni::play_sound("menuButton", 1.0f, 0.7f);
+        get_Sound().update();
         get_Game().push_state(new LevelEditor());
       }
     } edit_button;
+
+    class Level_0 : public Text_Button {
+      Level_0(const Level_0 &);
+      Level_0 & operator=(const Level_0 &);
+
+    public:
+      Level_0()
+        : Text_Button(Point2f(200.0f, 330.0f), Point2f(260.0f, 390.0f),
+                      "system_36_800x600", "0")
+      {
+      }
+
+      void on_accept() {
+        Zeni::play_sound("menuButton", 1.0f, 0.7f);
+        get_Sound().update();
+        get_Game().push_state(new LevelIntroState(0));
+      }
+    } level_0_button;
+
+    class Level_1 : public Text_Button {
+      Level_1(const Level_1 &);
+      Level_1 & operator=(const Level_1 &);
+
+    public:
+      Level_1()
+        : Text_Button(Point2f(268.0f, 330.0f), Point2f(328.0f, 390.0f),
+                      "system_36_800x600", "1")
+      {
+      }
+
+      void on_accept() {
+        Zeni::play_sound("menuButton", 1.0f, 0.7f);
+        get_Sound().update();
+        get_Game().push_state(new LevelIntroState(1));
+      }
+    } level_1_button;
+
+    class Level_2 : public Text_Button {
+      Level_2(const Level_2 &);
+      Level_2 & operator=(const Level_2 &);
+
+    public:
+      Level_2()
+        : Text_Button(Point2f(336.0f, 330.0f), Point2f(396.0f, 390.0f),
+                      "system_36_800x600", "2")
+      {
+      }
+
+      void on_accept() {
+        Zeni::play_sound("menuButton", 1.0f, 0.7f);
+        get_Sound().update();
+        get_Game().push_state(new LevelIntroState(2));
+      }
+    } level_2_button;
+
+    class Level_3 : public Text_Button {
+      Level_3(const Level_3 &);
+      Level_3 & operator=(const Level_3 &);
+
+    public:
+      Level_3()
+        : Text_Button(Point2f(404.0f, 330.0f), Point2f(464.0f, 390.0f),
+                      "system_36_800x600", "3")
+      {
+      }
+
+      void on_accept() {
+        Zeni::play_sound("menuButton", 1.0f, 0.7f);
+        get_Sound().update();
+        get_Game().push_state(new LevelIntroState(3));
+      }
+    } level_3_button;
+
+    class Level_4 : public Text_Button {
+      Level_4(const Level_4 &);
+      Level_4 & operator=(const Level_4 &);
+
+    public:
+      Level_4()
+        : Text_Button(Point2f(472.0f, 330.0f), Point2f(532.0f, 390.0f),
+                      "system_36_800x600", "4")
+      {
+      }
+
+      void on_accept() {
+        Zeni::play_sound("menuButton", 1.0f, 0.7f);
+        get_Sound().update();
+        get_Game().push_state(new LevelIntroState(4));
+      }
+    } level_4_button;
+
+    class Level_5 : public Text_Button {
+      Level_5(const Level_5 &);
+      Level_5 & operator=(const Level_5 &);
+
+    public:
+      Level_5()
+        : Text_Button(Point2f(540.0f, 330.0f), Point2f(600.0f, 390.0f),
+                      "system_36_800x600", "5")
+      {
+      }
+
+      void on_accept() {
+        Zeni::play_sound("menuButton", 1.0f, 0.7f);
+        get_Sound().update();
+        get_Game().push_state(new LevelIntroState(5));
+      }
+    } level_5_button;
 
     void on_push() {
       Title_State<LevelIntroState, Instructions_State>::on_push();
@@ -120,8 +248,17 @@ class Bootstrap {
     Our_Title_State()
       : Title_State<LevelIntroState, Instructions_State>("Dismantled Demon\nDisconnection")
     {
-      play_button.set_lower_right(Point2f(390.0f, 310.0f));
+      m_widgets.unlend_Widget(play_button);
+      m_widgets.unlend_Widget(instructions_button);
+
+      m_widgets.lend_Widget(play_button_2);
       m_widgets.lend_Widget(edit_button);
+      m_widgets.lend_Widget(level_0_button);
+      m_widgets.lend_Widget(level_1_button);
+      m_widgets.lend_Widget(level_2_button);
+      m_widgets.lend_Widget(level_3_button);
+      m_widgets.lend_Widget(level_4_button);
+      m_widgets.lend_Widget(level_5_button);
     }
 
   private:
