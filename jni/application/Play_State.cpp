@@ -3,6 +3,7 @@
 #include "BamfCloud.h"
 #include "BamfCloudReverse.h"
 #include "Crawler.h"
+#include "DefeatState.h"
 #include "PowerSelect.h"
 #include "Portal.h"
 #include "LevelIntroState.h"
@@ -171,10 +172,10 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 			do
 			{
 				next_grid_pos = Point2i(next_grid_pos.x + 1, next_grid_pos.y);
-			} while(next_grid_pos.x < m_grid.get_width() && !(m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_EMPTY ||
-                                                        m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_DEPOSIT ||
-                                                        m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_SPAWN_CRAWLER ||
-                                                        m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_SPAWN_PLAYER));
+			} while(next_grid_pos.x < int(m_grid.get_width()) && !(m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_EMPTY ||
+                                                             m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_DEPOSIT ||
+                                                             m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_SPAWN_CRAWLER ||
+                                                             m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_SPAWN_PLAYER));
 		}
 		else
 		{
@@ -188,11 +189,11 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
                                         m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_SPAWN_PLAYER));
 		}
 
-		if (next_grid_pos.x >= 0 &&	next_grid_pos.x < m_grid.get_width())
+		if (next_grid_pos.x >= 0 &&	next_grid_pos.x < int(m_grid.get_width()))
 		{
-			m_animation_objects.push_back(new BamfCloud(Point2f(grid_pos.x, grid_pos.y)));
-			m_animation_objects.push_back(new BamfCloudReverse(Point2f(next_grid_pos.x, next_grid_pos.y)));
-			m_player.set_position(Point2f(next_grid_pos.x, next_grid_pos.y));
+			m_animation_objects.push_back(new BamfCloud(Point2f(float(grid_pos.x), float(grid_pos.y))));
+			m_animation_objects.push_back(new BamfCloudReverse(Point2f(float(next_grid_pos.x), float(next_grid_pos.y))));
+			m_player.set_position(Point2f(float(next_grid_pos.x), float(next_grid_pos.y)));
 		}
 	}
 	break;
@@ -284,8 +285,8 @@ void Play_State::step(const float &time_step)
     m_player.set_velocity(m_player.get_velocity().normalized() * 10.0f);
 
   for (list<Enemy*>::iterator it = m_enemies.begin(); it != m_enemies.end(); ++it) {
-
     (*it)->step(time_step);
+
     {
       const auto egp = (*it)->grid_pos();
       const int inc = (*it)->get_velocity().i > 0.0f ? 1 : -1;
@@ -562,6 +563,11 @@ void Play_State::step(const float &time_step)
     }
   }
 
+  if(!m_player.get_powers().empty() && m_time_processed >= m_time_to_failure[m_player.get_powers().size()]) {
+    get_Game().pop_state();
+    get_Game().push_state(new DefeatState(m_level_number));
+  }
+
   //Enemy collisions with Player
   if (!m_player.has_power(POWER_SHADOW))
   {
@@ -571,8 +577,11 @@ void Play_State::step(const float &time_step)
 		  {
 			  (*i)->applyCollisionEffect(m_player);
 
-			  //Kill whatever collided with the player
-			  (*i)->setDeleteThis(true);
+			  ////Kill whatever collided with the player
+			  //(*i)->setDeleteThis(true);
+
+        get_Game().pop_state();
+        get_Game().push_state(new DefeatState(m_level_number));
 		  }
 	  }
   }

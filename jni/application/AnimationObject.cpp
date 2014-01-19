@@ -42,7 +42,7 @@ void AnimationObject::step(const float &time_step)
 
 void AnimationObject::render(const Zeni::Vector2f &offset)
 {
-	if (m_animation_index < m_animation_frames.size())
+	if (m_animation_index < int(m_animation_frames.size()))
 	{
 		Object::render(offset, m_animation_frames[m_animation_index], false);
 	}
