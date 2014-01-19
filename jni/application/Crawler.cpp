@@ -5,7 +5,7 @@
 using namespace std;
 using namespace Zeni;
 
-const float MOVEMENT_SPEED = 40;
+const float MOVEMENT_SPEED = 10;
 
 Crawler::Crawler()
   : Enemy(Point2f())
@@ -34,13 +34,9 @@ void Crawler::applyCollisionEffect(Player& player)
 void Crawler::step(const float &time_step)
 {
 	if (m_state == MOVING_LEFT)
-	{
-		set_velocity(Vector2f(-MOVEMENT_SPEED * time_step, 0.0f));
-	}
+		set_velocity(Vector2f(-MOVEMENT_SPEED, 0.0f));
 	else if (m_state == MOVING_RIGHT)
-	{
-		set_velocity(Vector2f(MOVEMENT_SPEED * time_step, 0.0f));
-	}
+		set_velocity(Vector2f(MOVEMENT_SPEED, 0.0f));
 
 	Object::step(time_step);
 

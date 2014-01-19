@@ -3,7 +3,7 @@
 using namespace std;
 using namespace Zeni;
 
-const float DEATHRAY_MOVEMENT_SPEED = 400.0f;
+const float DEATHRAY_MOVEMENT_SPEED = 40.0f;
 
 DeathRay::DeathRay(const Zeni::Point2f &pos, const DeathRay::STATE &state)
   : Object(pos),
@@ -46,13 +46,9 @@ void DeathRay::setDeleteThis(bool deleteThis)
 void DeathRay::step(const float &time_step)
 {
 	if (m_state == MOVING_LEFT)
-	{
-		set_velocity(Vector2f(-DEATHRAY_MOVEMENT_SPEED * time_step, 0.0f));
-	}
+		set_velocity(Vector2f(-DEATHRAY_MOVEMENT_SPEED, 0.0f));
 	else if (m_state == MOVING_RIGHT)
-	{
-		set_velocity(Vector2f(DEATHRAY_MOVEMENT_SPEED * time_step, 0.0f));
-	}
+		set_velocity(Vector2f(DEATHRAY_MOVEMENT_SPEED, 0.0f));
 
 	Object::step(time_step);
 

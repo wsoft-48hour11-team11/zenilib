@@ -26,9 +26,6 @@ public:
 
   virtual void step(const float &time_step) {
     m_velocity += time_step * m_acceleration;
-    if(m_velocity.magnitude() > 10.0f)
-      m_velocity.normalize() *= 10.0f;
-
     m_position += time_step * m_velocity;
   }
 

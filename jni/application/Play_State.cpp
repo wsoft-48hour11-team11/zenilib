@@ -94,16 +94,18 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 
   case ACTION_LEFT:
     m_player.left = confidence > 0.5f;
+    m_player.moving_right = m_player.left ? false : m_player.right;
     break;
 
   case ACTION_RIGHT:
     m_player.right = confidence > 0.5f;
+    m_player.moving_right = m_player.right ? true : !m_player.left;
     break;
 
   case ACTION_DEATH_RAY:
 	if (m_player.has_power(POWER_DEATHRAY) && confidence == 1.0)
 	{
-		m_deathrays.push_back(new DeathRay(m_player.get_position(), DeathRay::MOVING_RIGHT));
+    m_deathrays.push_back(new DeathRay(m_player.get_position(), m_player.moving_right ? DeathRay::MOVING_RIGHT : DeathRay::MOVING_LEFT));
 	}
 	break;
 
@@ -188,14 +190,14 @@ void Play_State::perform_logic()
 void Play_State::step(const float &time_step)
 {
   m_player.step(time_step);
+  if(m_player.get_velocity().magnitude() > 10.0f)
+    m_player.set_velocity(m_player.get_velocity().normalized() * 10.0f);
+
   for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
-  {
 	  (*i)->step(time_step);
-  }
+
   for (list<DeathRay*>::iterator i = m_deathrays.begin(); i != m_deathrays.end(); i++)
-  {
 	  (*i)->step(time_step);
-  }
 
   const size_t width = m_grid.get_width();
   const size_t height = m_grid.get_height();

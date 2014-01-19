@@ -20,6 +20,7 @@ public:
   state(STATE_IN_AIR),
   left(false),
   right(false),
+  moving_right(true),
   m_speed(8.0f, 8.0f),
   m_powers(POWER_LIST_SIZE, true)
   {
@@ -32,6 +33,7 @@ public:
   state(STATE_IN_AIR),
   left(false),
   right(false),
+  moving_right(true),
   m_speed(8.0f, 8.0f),
   m_powers(POWER_LIST_SIZE, true)
   {
@@ -122,6 +124,7 @@ public:
 
   bool left;
   bool right;
+  bool moving_right;
 
 private:
   Zeni::Vector2f m_speed;
