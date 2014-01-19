@@ -4,11 +4,13 @@
 
 #include "common.h"
 #include "GameSingleton.h"
+#include "Play_State.h"
 
 using namespace std;
 using namespace Zeni;
 
-LevelIntroState::LevelIntroState(int level) :
+LevelIntroState::LevelIntroState(const int &level)
+  : m_level_number(level),
 	tb(Point2f(0, 0), Point2f(RES_HORIZ, RES_VERT),"intro", "", get_Colors()["white"]),
 	tb2(Point2f(RES_HORIZ - 128.0f, RES_VERT - 32.0f), Point2f(RES_HORIZ, RES_VERT),"intro", "Press Enter", get_Colors()["white"])
 {
@@ -63,6 +65,7 @@ void LevelIntroState::on_event(const Zeni::Zeni_Input_ID &id, const float &confi
 		if (confidence == 1.0)
 		{
 			get_Game().pop_state();
+      get_Game().push_state(new Play_State(m_level_number));
 		}
 	}
 }

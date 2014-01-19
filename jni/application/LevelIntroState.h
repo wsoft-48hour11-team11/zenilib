@@ -6,7 +6,7 @@
 class LevelIntroState : public Zeni::Gamestate_II
 {
 	public:
-		LevelIntroState(int level);
+		LevelIntroState(const int &level = 0);
 		~LevelIntroState();
 
 		void on_cover();
@@ -22,7 +22,8 @@ class LevelIntroState : public Zeni::Gamestate_II
 		void render();
 
 	private:
-		LevelIntroState();
+    int m_level_number;
+
 		Zeni::String m_text;
 		
 		Zeni::Text_Box tb;

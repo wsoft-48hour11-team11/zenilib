@@ -15,7 +15,7 @@ class Play_State : public Zeni::Gamestate_II {
 	  Play_State operator=(const Play_State &);
 
 	public:
-	  Play_State();
+	  Play_State(const int &level_number = 0);
 
 	  ~Play_State();
 
@@ -34,6 +34,8 @@ class Play_State : public Zeni::Gamestate_II {
 	  void prerender();
 
 	  void render();
+
+    int m_level_number;
 
 	  Zeni::Time m_current_time;
 		float m_time_passed;

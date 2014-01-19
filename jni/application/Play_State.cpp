@@ -2,6 +2,7 @@
 
 #include "PowerSelect.h"
 #include "Portal.h"
+#include "LevelIntroState.h"
 
 #include <memory>
 
@@ -15,8 +16,9 @@ enum Action_ID {ACTION_ESCAPE = 1,
                 ACTION_DEPOSIT
                };
 
-Play_State::Play_State()
-	: m_grid(Zeni::Point2i(50, 32), Vector2f(0.0f, 0.0f), false),
+Play_State::Play_State(const int &level_number)
+	: m_level_number(level_number),
+  m_grid(Zeni::Point2i(50, 32), Vector2f(0.0f, 0.0f), false),
 	m_time_passed(0.0f),
 	m_max_time_step(1.0f / 30.0f), // make the largest physics step 1/30 of a second
 	m_max_time_steps(10.0f), // allow no more than 10 physics steps per frame,
@@ -283,6 +285,13 @@ void Play_State::step(const float &time_step)
               m_powerseal = &*it;
               break;
             }
+          }
+          break;
+
+        case TILE_SPAWN_PLAYER:
+          if(m_portal) {
+            get_Game().pop_state();
+            get_Game().push_state(new LevelIntroState(m_level_number + 1));
           }
           break;
 
