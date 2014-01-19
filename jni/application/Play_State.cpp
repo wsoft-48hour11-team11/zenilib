@@ -592,20 +592,21 @@ void Play_State::step(const float &time_step)
 	  {
 		  if (m_player.collides_with((*i)->getCollisionBox()))
 		  {
-      if(m_player.has_power(POWER_SHADOW)) {
-        Zeni::play_sound("shadow");
-      }
-      else {
-			  (*i)->applyCollisionEffect(m_player);
+			if(m_player.has_power(POWER_SHADOW)) {
+				Zeni::play_sound("shadow");
+			}
+			else {
+				(*i)->applyCollisionEffect(m_player);
 
-			  ////Kill whatever collided with the player
-			  //(*i)->setDeleteThis(true);
-			  m_game_over = true;
-			  m_death_countdown = 2.0f;
-			  m_player.killPlayer();
-        /*get_Game().pop_state();
-        get_Game().push_state(new DefeatState(m_level_number));*/
-        Zeni::play_sound("deathByEnemy");
+				////Kill whatever collided with the player
+				//(*i)->setDeleteThis(true);
+				m_game_over = true;
+				m_death_countdown = 2.0f;
+				m_player.killPlayer();
+				/*get_Game().pop_state();
+				get_Game().push_state(new DefeatState(m_level_number));*/
+				Zeni::play_sound("deathByEnemy");
+			}
 		  }
 	  }
   }
