@@ -1,5 +1,12 @@
 #include "common.h"
 
+/** TODO:
+ *   -Set up the failure timer (and add time as powers are deposited (and remove it when they're retrieved!))
+ *   -Play music and sound effects
+ *   -Make art assets consistent
+ *   -Connect levels
+ */
+
 #include <fstream>
 
 using namespace Zeni;

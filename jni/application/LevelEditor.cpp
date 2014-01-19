@@ -57,7 +57,7 @@ void LevelEditor::on_pop()
 {
 }
 
-void LevelEditor::on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action)	
+void LevelEditor::on_event(const Zeni::Zeni_Input_ID &/*id*/, const float &confidence, const int &action)	
 {
 	if (action == 1)
 	{
@@ -243,7 +243,7 @@ void LevelEditor::perform_logic()
 {
 }
 
-void LevelEditor::step(const float &time_step)
+void LevelEditor::step(const float &/*time_step*/)
 {
 }
 
@@ -252,10 +252,10 @@ void LevelEditor::render()
 	Video &vr = get_Video();
 	vr.set_clear_Color(Color());
 	
-	vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(TILE_SIZE * m_level.get_width(), TILE_SIZE * m_level.get_height())), true);
+	vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(float(TILE_SIZE * m_level.get_width()), float(TILE_SIZE * m_level.get_height()))), true);
 
 	m_level.render();
 
-	m_cursor.setPos(Point2f(m_grid_cursor_pos.x * TILE_SIZE, m_grid_cursor_pos.y * TILE_SIZE));
+	m_cursor.setPos(Point2f(float(m_grid_cursor_pos.x * TILE_SIZE), float(m_grid_cursor_pos.y * TILE_SIZE)));
 	m_cursor.render();
 }
