@@ -140,10 +140,55 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
   case ACTION_DEATH_RAY:
 	if (m_player.has_power(POWER_DEATHRAY) && confidence == 1.0)
 	{
-    m_deathrays.push_back(new DeathRay(m_player.get_position(), m_player.moving_right ? DeathRay::MOVING_RIGHT : DeathRay::MOVING_LEFT));
+		m_deathrays.push_back(new DeathRay(m_player.get_position(), m_player.moving_right ? DeathRay::MOVING_RIGHT : DeathRay::MOVING_LEFT));
 	}
 	break;
 
+  case ACTION_TELEPORT:
+	if (m_player.has_power(POWER_TELEPORT) && confidence == 1.0)
+	{
+		if (m_player.moving_right)
+		{
+			//Teleport right
+			
+		}
+		else
+		{
+			//Teleport left
+		}
+
+		Vector2f normalized = m_player.get_velocity();
+		normalized.normalize();
+		float i = normalized.i;
+		float j = normalized.j;
+		float angle = normalized.angle_between(Vector2f(1, 0));
+		//float dead_zone = 1.0f;
+		//if (j < 0)
+		//{
+		//	if (angle <= 3.14/6)
+		//	{
+		//		//Teleport right
+		//	}
+		//	else if (angle <= 3.14/3)
+		//	{
+		//		//Teleport up-right
+		//	}
+		//	else if (angle <= 2 * 3.14/3)
+		//	{
+		//		//Teleport up
+		//	}
+		//	else if (angle <= 5 * 3.14/6)
+		//	{
+		//		//Teleport up-left
+		//	}
+		//	else
+		//	{
+		//		//Teleport left
+		//	}
+		//}
+	}
+	break;
+  
   case ACTION_DEPOSIT:
     if(confidence > 0.5f && m_powerseal && !m_player.get_powers().empty()) {
       if(m_powerseal->getPower() != POWER_EMPTY) {
