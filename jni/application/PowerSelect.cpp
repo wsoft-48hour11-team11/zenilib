@@ -53,7 +53,7 @@ void PowerSelect::on_pop()
 {
 }
 
-void PowerSelect::on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action)
+void PowerSelect::on_event(const Zeni::Zeni_Input_ID &/*id*/, const float &confidence, const int &action)
 {
 	if (action == 1)
 	{
@@ -86,6 +86,7 @@ void PowerSelect::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 			m_powerseal->setPower(lost_power);
 			m_player->remove_power(lost_power);
 			get_Game().pop_state();
+      Zeni::play_sound("chest");
 		}
 	}
 	if (action == 4)
@@ -100,14 +101,14 @@ void PowerSelect::perform_logic()
 {
 }
 
-void PowerSelect::step(const float &time_step)
+void PowerSelect::step(const float &/*time_step*/)
 {
 }
 
 void PowerSelect::render()
 {
 	Video &vr = get_Video();
-	Colors &cr = get_Colors();
+	//Colors &cr = get_Colors();
 	
 	m_game_state.render();
 
@@ -115,7 +116,7 @@ void PowerSelect::render()
 
 	//Render the available powers
 	Point2f base_pos = Point2f(544.0f, 200.0f);
-	for (unsigned int i = 0; i <= m_max_cursor_index; i++)
+	for (int i = 0; i <= m_max_cursor_index; i++)
 	{
 		Point2f image_ul = Point2f(base_pos.x + i * 48, base_pos.y);
 		Point2f image_lr = Point2f(image_ul.x + 32, image_ul.y + 32.0f);

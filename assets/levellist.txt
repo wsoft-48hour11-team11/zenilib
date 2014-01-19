@@ -1,2 +1,5 @@
+levels/castle.txt
+levels/kirill_level0.txt
+levels/kirill_level1.txt
 levels/wsoft.txt
 test_level.txt

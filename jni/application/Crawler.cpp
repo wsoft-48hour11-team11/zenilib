@@ -27,7 +27,7 @@ Crawler::~Crawler()
 {
 }
 
-void Crawler::applyCollisionEffect(Player& player)
+void Crawler::applyCollisionEffect(Player &/*player*/)
 {
 }
 
