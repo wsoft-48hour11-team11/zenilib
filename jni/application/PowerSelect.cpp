@@ -4,17 +4,8 @@ using namespace std;
 using namespace Zeni;
 
 PowerSelect::PowerSelect(Zeni::Gamestate gamestate, Player* player, PowerSeal* powerseal)
-	: m_game_state(gamestate),
-	tb(Point2f(0, 140), Point2f(RES_HORIZ, 200),"intro", "Select the power to seal:", get_Colors()["white"]),
-	tb2(Point2f(RES_HORIZ - 128.0f, RES_VERT - 32.0f), Point2f(RES_HORIZ, RES_VERT),"intro", "Press Enter", get_Colors()["white"])
-
+	: m_game_state(gamestate)
 {
-	//Set up text boxes
-	Colors &cr = get_Colors();
-	tb.give_BG_Renderer(new Widget_Renderer_Color(cr["red"]));
-	tb2.give_BG_Renderer(new Widget_Renderer_Color(cr["black"]));
-	
-	//Set up the rest
 	m_player = player;
 	m_powerseal = powerseal;
 
@@ -153,7 +144,7 @@ void PowerSelect::render()
 										cr["white"],
 										ZENI_CENTER );
 	get_Fonts()["intro"].render_text(power_name(m_player->get_powers()[m_cursor_index]),
-										Point2f(RES_HORIZ/2.0f, 240),
+										Point2f(RES_HORIZ/2.0f, 260),
 										cr["white"],
 										ZENI_CENTER );
 }

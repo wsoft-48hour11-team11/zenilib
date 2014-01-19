@@ -37,9 +37,6 @@ class PowerSelect : public Zeni::Gamestate_II
 		int m_cursor_index;
 		int m_max_cursor_index;
 		Power m_highlighted_power;
-
-		Zeni::Text_Box tb;
-		Zeni::Text_Box tb2;
 };
 
 #endif
