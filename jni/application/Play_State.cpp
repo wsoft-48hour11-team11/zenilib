@@ -342,48 +342,41 @@ void Play_State::step(const float &time_step)
         if(m_player.collides_with(std::make_pair(Point2f(float(i), float(j)), Point2f(i + 1.0f, j + 1.0f)))) {
           switch(m_grid[j][i]) {
           case TILE_FULL:
-            {
-              const float push_left = fabs(i - pcb.second.x);
-              const float push_right = fabs((i + 1) - pcb.first.x);
-              const float push_up = fabs(j - pcb.second.y);
-              const float push_down = fabs((j + 1) - pcb.first.y);
+          {
+            float push_left = pcb.second.x - i;
+            float push_right = (i + 1) - pcb.first.x;
+            float push_up = pcb.second.y - j;
+            float push_down = (j + 1) - pcb.first.y;
+            
+            if(push_left < 0.0f)
+              push_left = std::numeric_limits<float>::max();
+            if(push_right < 0.0f)
+              push_right = std::numeric_limits<float>::max();
+            if(push_up < 0.0f)
+              push_up = std::numeric_limits<float>::max();
+            if(push_down < 0.0f)
+              push_down = std::numeric_limits<float>::max();
 
-              const bool fl = i == 0 || m_grid[j][i - 1] == TILE_FULL;
-              const bool fr = i == m_grid.get_width() - 1 || m_grid[j][i + 1] == TILE_FULL;
-              const bool fd = j == m_grid.get_height() - 1 || m_grid[j + 1][i] == TILE_FULL;
-              const bool force_up = fl && fr && fd;
-              
-              if(/*!force_up &&*/ push_up > 0.15f && push_down > 0.15f) {
-                if(push_left < push_right) {
-                  if(pcb.second.x > i) {
-                    m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
-                    m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), m_player.get_velocity().j));
-                  }
-                }
-                else {
-                  if(pcb.first.x < i + 1.0f) {
-                    m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
-                    m_player.set_velocity(Vector2f(std::max(0.0f, m_player.get_velocity().i), m_player.get_velocity().j));
-                  }
-                }
-                m_player.state = Player::STATE_ON_WALL;
-              }
-              if(/*force_up ||*/ push_left > 0.15f && push_right > 0.15f) {
-                if(/*force_up ||*/ push_up < push_down) {
-                  if(pcb.second.y > j) {
-                    m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
-                    m_player.set_velocity(Vector2f(m_player.get_velocity().i, std::min(0.0f, m_player.get_velocity().j)));
-                    m_player.state = Player::STATE_ON_GROUND;
-                  }
-                }
-                else {
-                  if(pcb.first.y < j + 1.0f) {
-                    m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
-                    m_player.set_velocity(Vector2f(m_player.get_velocity().i, std::max(0.0f, m_player.get_velocity().j)));
-                  }
-                }
-              }
+            if(push_left < push_right && push_left < push_up && push_left < push_down) {
+              m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
+              m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+              m_player.state = Player::STATE_ON_WALL;
             }
+            else if(push_right < push_up && push_right < push_down) {
+              m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
+              m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+              m_player.state = Player::STATE_ON_WALL;
+            }
+            else if(push_up < push_down) {
+              m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
+              m_player.state = Player::STATE_ON_GROUND;
+              m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
+            }
+            else {
+              m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
+              m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
+            }
+          }
             break;
 
           case TILE_LOWER_LEFT:
