@@ -31,7 +31,9 @@ Play_State::Play_State(const int &level_number)
   m_time_processed(0.0f),
 	m_max_time_step(1.0f / 60.0f), // make the largest physics step 1/30 of a second
 	m_max_time_steps(10.0f), // allow no more than 10 physics steps per frame,
-  m_powerseal(0)
+  m_powerseal(0),
+  m_game_over(false),
+  m_death_countdown(5.0f)
 {
 	set_pausable(true);
   set_firing_missed_events(true);
@@ -126,7 +128,11 @@ void Play_State::on_pop() {
 }
 
 void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, const int &action) {
-  switch(action) {
+  if (m_game_over)
+  {
+	  return;
+  }
+	switch(action) {
   case ACTION_ESCAPE:
     if(confidence > 0.5f)
       get_Game().push_Popup_Menu_State();
@@ -158,6 +164,7 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 	if (m_player.has_power(POWER_DEATHRAY) && confidence == 1.0)
 	{
 		m_deathrays.push_back(new DeathRay(m_player.get_position(), m_player.moving_right ? DeathRay::MOVING_RIGHT : DeathRay::MOVING_LEFT));
+    Zeni::play_sound("deathray", 1.0f, 0.7f);
 	}
 	break;
 
@@ -195,6 +202,8 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 			m_animation_objects.push_back(new BamfCloudReverse(Point2f(float(next_grid_pos.x), float(next_grid_pos.y))));
 			m_player.set_position(Point2f(float(next_grid_pos.x), float(next_grid_pos.y)));
 		}
+
+    Zeni::play_sound("portal", 1.0f, 0.7f);
 	}
 	break;
   
@@ -211,6 +220,8 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 
           // Wincon unlocked
           m_portal = std::make_shared<Portal>(Point2f(m_grid.get_spawn_player()));
+          Zeni::play_sound("chest", 1.0f, 0.7f);
+          Zeni::play_sound("portal", 1.0f, 0.7f);
         }
         else
           get_Game().push_state(new PowerSelect(this, &m_player, m_powerseal));
@@ -280,6 +291,17 @@ void Play_State::perform_logic()
 
 void Play_State::step(const float &time_step)
 {
+  if (m_game_over)
+  {
+	  m_death_countdown -= time_step;
+	  if (m_death_countdown <= 0)
+	  {
+		  get_Game().pop_state();
+		  get_Game().push_state(new DefeatState(m_level_number));
+	  }
+  }
+
+
   m_player.step(time_step);
   if(m_player.get_velocity().magnitude() > 10.0f)
     m_player.set_velocity(m_player.get_velocity().normalized() * 10.0f);
@@ -324,48 +346,43 @@ void Play_State::step(const float &time_step)
         if(m_player.collides_with(std::make_pair(Point2f(float(i), float(j)), Point2f(i + 1.0f, j + 1.0f)))) {
           switch(m_grid[j][i]) {
           case TILE_FULL:
-            {
-              const float push_left = fabs(i - pcb.second.x);
-              const float push_right = fabs((i + 1) - pcb.first.x);
-              const float push_up = fabs(j - pcb.second.y);
-              const float push_down = fabs((j + 1) - pcb.first.y);
+          {
+            float push_left = pcb.second.x - i;
+            float push_right = (i + 1) - pcb.first.x;
+            float push_up = pcb.second.y - j;
+            float push_down = (j + 1) - pcb.first.y;
+            
+            if(push_left < 0.0f)
+              push_left = std::numeric_limits<float>::max();
+            if(push_right < 0.0f)
+              push_right = std::numeric_limits<float>::max();
+            if(push_up < 0.0f)
+              push_up = std::numeric_limits<float>::max();
+            if(push_down < 0.0f)
+              push_down = std::numeric_limits<float>::max();
 
-              const bool fl = i == 0 || m_grid[j][i - 1] == TILE_FULL;
-              const bool fr = i == m_grid.get_width() - 1 || m_grid[j][i + 1] == TILE_FULL;
-              const bool fd = j == m_grid.get_height() - 1 || m_grid[j + 1][i] == TILE_FULL;
-              const bool force_up = fl && fr && fd;
-              
-              if(/*!force_up &&*/ push_up > 0.15f && push_down > 0.15f) {
-                if(push_left < push_right) {
-                  if(pcb.second.x > i) {
-                    m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
-                    m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), m_player.get_velocity().j));
-                  }
-                }
-                else {
-                  if(pcb.first.x < i + 1.0f) {
-                    m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
-                    m_player.set_velocity(Vector2f(std::max(0.0f, m_player.get_velocity().i), m_player.get_velocity().j));
-                  }
-                }
-                m_player.state = Player::STATE_ON_WALL;
-              }
-              if(/*force_up ||*/ push_left > 0.15f && push_right > 0.15f) {
-                if(/*force_up ||*/ push_up < push_down) {
-                  if(pcb.second.y > j) {
-                    m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
-                    m_player.set_velocity(Vector2f(m_player.get_velocity().i, std::min(0.0f, m_player.get_velocity().j)));
-                    m_player.state = Player::STATE_ON_GROUND;
-                  }
-                }
-                else {
-                  if(pcb.first.y < j + 1.0f) {
-                    m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
-                    m_player.set_velocity(Vector2f(m_player.get_velocity().i, std::max(0.0f, m_player.get_velocity().j)));
-                  }
-                }
+            if(push_left < push_right && push_left < push_up && push_left < push_down) {
+              m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
+              m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+              m_player.state = Player::STATE_ON_WALL;
+            }
+            else if(push_right < push_up && push_right < push_down) {
+              m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
+              m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+              m_player.state = Player::STATE_ON_WALL;
+            }
+            else if(push_up < push_down) {
+              if(m_player.state != Player::STATE_ON_WALL || pgp.x == i) {
+                m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
+                m_player.state = Player::STATE_ON_GROUND;
+                m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
               }
             }
+            else {
+              m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
+              m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
+            }
+          }
             break;
 
           case TILE_LOWER_LEFT:
@@ -555,6 +572,8 @@ void Play_State::step(const float &time_step)
 
           case TILE_SPAWN_PLAYER:
             if(m_portal) {
+              Zeni::play_sound("portal", 1.0f, 0.7f);
+              get_Sound().update();
               get_Game().pop_state();
               get_Game().push_state(new LevelIntroState(m_level_number + 1));
             }
@@ -574,19 +593,27 @@ void Play_State::step(const float &time_step)
   }
 
   //Enemy collisions with Player
-  if (!m_player.has_power(POWER_SHADOW))
+  if (!m_player.isDead())
   {
 	  for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
 	  {
 		  if (m_player.collides_with((*i)->getCollisionBox()))
 		  {
-			  (*i)->applyCollisionEffect(m_player);
+			if(m_player.has_power(POWER_SHADOW)) {
+        (*i)->play_sound();
+			}
+			else {
+				(*i)->applyCollisionEffect(m_player);
 
-			  ////Kill whatever collided with the player
-			  //(*i)->setDeleteThis(true);
-
-        get_Game().pop_state();
-        get_Game().push_state(new DefeatState(m_level_number));
+				////Kill whatever collided with the player
+				//(*i)->setDeleteThis(true);
+				m_game_over = true;
+				m_death_countdown = 2.0f;
+				m_player.killPlayer();
+				/*get_Game().pop_state();
+				get_Game().push_state(new DefeatState(m_level_number));*/
+				Zeni::play_sound("deathByEnemy", 1.0f, 0.7f);
+			}
 		  }
 	  }
   }
@@ -695,7 +722,7 @@ void Play_State::render() {
   }
 
   if(m_player.get_powers().empty())
-    get_Fonts()["intro"].render_text("The world is safe... for now.", Point2f(), Color());
+    get_Fonts()["main_game"].render_text("The world is safe... for now.", Point2f(RES_HORIZ / 2.0f, 10.0f), get_Colors()["red"], ZENI_CENTER);
   else
-    get_Fonts()["intro"].render_text(itoa(int(m_time_to_failure[m_player.get_powers().size()] - m_time_processed)), Point2f(), Color());
+    get_Fonts()["main_game"].render_text(itoa(int(m_time_to_failure[m_player.get_powers().size()] - m_time_processed)) + " Seconds Left!", Point2f(RES_HORIZ / 2.0f, 10.0f), get_Colors()["green"], ZENI_CENTER);
 }

@@ -107,11 +107,29 @@ class Bootstrap {
       }
     } edit_button;
 
+    void on_push() {
+      Title_State<LevelIntroState, Instructions_State>::on_push();
+      play_music();
+    }
+
+    void on_uncover() {
+      Title_State<LevelIntroState, Instructions_State>::on_uncover();
+      play_music();
+    }
+
     Our_Title_State()
       : Title_State<LevelIntroState, Instructions_State>("Dismantled Demon\nDisconnection")
     {
       play_button.set_lower_right(Point2f(390.0f, 310.0f));
       m_widgets.lend_Widget(edit_button);
+    }
+
+  private:
+    void play_music() {
+      get_Sound().set_BGM("music/48hr_music2_2");
+      get_Sound().set_BGM_looping(true);
+      get_Sound().set_BGM_gain(0.5f);
+      get_Sound().play_BGM();
     }
   };
 

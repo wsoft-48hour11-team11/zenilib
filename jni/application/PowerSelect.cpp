@@ -88,7 +88,7 @@ void PowerSelect::on_event(const Zeni::Zeni_Input_ID &/*id*/, const float &confi
 			m_powerseal->setPower(lost_power);
 			m_player->remove_power(lost_power);
 			get_Game().pop_state();
-      Zeni::play_sound("chest");
+      Zeni::play_sound("chest", 1.0f, 0.7f);
 		}
 	}
 	if (action == 4)
@@ -110,11 +110,20 @@ void PowerSelect::step(const float &/*time_step*/)
 void PowerSelect::render()
 {
 	Video &vr = get_Video();
-	//Colors &cr = get_Colors();
+	Colors &cr = get_Colors();
 	
 	m_game_state.render();
 
 	vr.set_2d(make_pair(Point2f(), Point2f(RES_HORIZ, RES_VERT)), true);
+
+	//Render faded bg
+	Vertex2f_Color p0(Point2f(0, 0), cr["transblack"]);
+	Vertex2f_Color p1(Point2f(0, RES_VERT), cr["transblack"]);
+	Vertex2f_Color p2(Point2f(RES_HORIZ, RES_VERT), cr["transblack"]);
+	Vertex2f_Color p3(Point2f(RES_HORIZ, 0), cr["transblack"]);
+	Quadrilateral<Vertex2f_Color> top(p0, p1, p2, p3);
+
+	vr.render(top);
 
 	//Render the available powers
 	Point2f base_pos = Point2f(544.0f, 200.0f);
@@ -128,4 +137,14 @@ void PowerSelect::render()
 
 	m_cursor.setPos(Point2f(base_pos.x + m_cursor_index * 48, base_pos.y));
 	m_cursor.render();
+
+	//Render the power's name
+	get_Fonts()["intro"].render_text("Select the power to seal:",
+										Point2f(RES_HORIZ/2.0f, 140),
+										cr["white"],
+										ZENI_CENTER );
+	get_Fonts()["intro"].render_text(power_name(m_player->get_powers()[m_cursor_index]),
+										Point2f(RES_HORIZ/2.0f, 260),
+										cr["white"],
+										ZENI_CENTER );
 }

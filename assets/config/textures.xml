@@ -115,6 +115,11 @@ The following things are unsupported:
     <filepath>textures/player.png</filepath>
     <tile>0</tile>
   </player>
+  <deadplayer>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/deadplayer.png</filepath>
+    <tile>0</tile>
+  </deadplayer>
   <portal>
     <is_sprite>0</is_sprite>
     <filepath>textures/portal.png</filepath>

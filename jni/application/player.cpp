@@ -9,7 +9,8 @@ right(false),
 left_right(0.0f),
 moving_right(true),
 m_speed(8.0f, 8.0f),
-m_powers(POWER_LIST_SIZE, true)
+m_powers(POWER_LIST_SIZE, true),
+m_alive(true)
 {
   m_powers[POWER_EMPTY] = false;
   m_powers[POWER_BLOOD] = false;
@@ -24,7 +25,8 @@ right(false),
 left_right(0.0f),
 moving_right(true),
 m_speed(8.0f, 8.0f),
-m_powers(POWER_LIST_SIZE, true)
+m_powers(POWER_LIST_SIZE, true),
+m_alive(true)
 {
   m_powers[POWER_EMPTY] = false;
   m_powers[POWER_BLOOD] = false;
@@ -59,6 +61,16 @@ if (power == POWER_SPEED)
 {
 	m_speed /= 2.0f;
 }
+}
+
+void Player::killPlayer()
+{
+	m_alive = false;
+}
+
+bool Player::isDead()
+{
+	return !m_alive;
 }
 
 void Player::step(const float &time_step) {
@@ -97,13 +109,26 @@ void Player::step(const float &time_step) {
     break;
   }
 
+  if (!m_alive)
+  {
+	  set_velocity(Zeni::Vector2f(0, get_velocity().y));
+	  set_acceleration(Zeni::Vector2f(0, get_acceleration().y));
+  }
+
   Object::step(time_step);
 
   state = STATE_IN_AIR;
 }
 
 void Player::render(const Zeni::Vector2f &offset) {
-  Object::render(offset, "player", false);
+  if (m_alive)
+  {
+	Object::render(offset, "player", false);
+  }
+  else
+  {
+	  Object::render(offset, "deadplayer", false);
+  }
 }
 
 std::pair<Zeni::Point2f, Zeni::Point2f> Player::collision_box() const {

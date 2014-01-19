@@ -22,6 +22,9 @@ public:
   void add_power(const Power &power);
   void remove_power(const Power &power);
 
+  void killPlayer();
+  bool isDead();
+
   void step(const float &time_step);
 
   void render(const Zeni::Vector2f &offset);
@@ -39,6 +42,7 @@ public:
 private:
   Zeni::Vector2f m_speed;
   std::vector<bool> m_powers;
+  bool m_alive;
 };
 
 
