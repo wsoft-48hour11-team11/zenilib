@@ -46,16 +46,16 @@ Play_State::Play_State(const int &level_number)
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_w), ACTION_JUMP);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_a), ACTION_LEFT);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_d), ACTION_RIGHT);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_j), ACTION_DEPOSIT);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_k), ACTION_DEATH_RAY);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_l), ACTION_TELEPORT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_j), ACTION_DEATH_RAY);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_k), ACTION_TELEPORT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_l), ACTION_DEPOSIT);
 
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_UP), ACTION_JUMP);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), ACTION_LEFT);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RIGHT), ACTION_RIGHT);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LCTRL), ACTION_DEPOSIT);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LSHIFT), ACTION_DEATH_RAY);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LALT), ACTION_TELEPORT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LALT), ACTION_DEATH_RAY);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LCTRL), ACTION_TELEPORT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LSHIFT), ACTION_DEPOSIT);
 
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SPACE), ACTION_JUMP);
   

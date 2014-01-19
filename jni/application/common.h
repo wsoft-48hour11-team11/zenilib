@@ -14,7 +14,7 @@ enum Power {POWER_EMPTY = 0,
 
 inline const char * const power_asset(const Power &power) {
   switch(power) {
-    case POWER_EMPTY:          return "tile_deposit";
+    case POWER_EMPTY:          return "chest";
     case POWER_BLOOD:          return "power-blood";
     case POWER_DEATHRAY:       return "power-deathray";
     case POWER_SHADOW:         return "power-shadow";
