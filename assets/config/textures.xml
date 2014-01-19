@@ -185,6 +185,11 @@ The following things are unsupported:
     <filepath>textures/Power-Teleport.png</filepath>
     <tile>0</tile>
   </power-teleport>
+  <instructions>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/instructions.png</filepath>
+    <tile>0</tile>
+  </instructions>
   <!--
   <one>
     <is_sprite>0</is_sprite>
