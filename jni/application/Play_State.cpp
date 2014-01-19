@@ -4,6 +4,7 @@
 #include "BamfCloudReverse.h"
 #include "Crawler.h"
 #include "DefeatState.h"
+#include "PowerResurrectionState.h"
 #include "PowerSelect.h"
 #include "Portal.h"
 #include "LevelIntroState.h"
@@ -592,8 +593,27 @@ void Play_State::step(const float &time_step)
   }
 
   if(!m_player.get_powers().empty() && m_time_processed >= m_time_to_failure[m_player.get_powers().size()]) {
-    get_Game().pop_state();
-    get_Game().push_state(new DefeatState(m_level_number));
+    //Calculate locations of Powers
+	  map<Power, Point2f> power_locations;
+	  vector<Power> player_powers = m_player.get_powers();
+	  for (vector<Power>::iterator i = player_powers.begin(); i != player_powers.end(); i++)
+	  {
+		  if (*i != POWER_EMPTY)
+		  {
+			  power_locations[*i] = m_player.get_position();
+		  }
+	  }
+
+	  for (list<PowerSeal>::iterator i = m_power_seals.begin(); i != m_power_seals.end(); i++)
+	  {
+		  Power sealed_power = i->getPower();
+		  if (sealed_power != POWER_EMPTY)
+		  {
+			  power_locations[sealed_power] = i->get_position();
+		  }
+	  }
+	  get_Game().pop_state();
+	  get_Game().push_state(new PowerResurrectionState(this, m_level_number, &m_player, power_locations, m_grid.get_render_offset()));
   }
 
   //Enemy collisions with Player

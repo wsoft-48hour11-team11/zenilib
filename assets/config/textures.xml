@@ -55,6 +55,11 @@ The following things are unsupported:
     <filepath>textures/DeathRay.png</filepath>
     <tile>0</tile>
   </deathray>
+  <demon>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/demon.png</filepath>
+    <tile>0</tile>
+  </demon>
   <bamf1>
     <is_sprite>0</is_sprite>
     <filepath>textures/bamf1.png</filepath>
