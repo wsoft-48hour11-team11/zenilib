@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include "object.h"
+#include "BloodAnimation.h"
 
 #include "common.h"
 
@@ -43,6 +44,7 @@ private:
   Zeni::Vector2f m_speed;
   std::vector<bool> m_powers;
   bool m_alive;
+  BloodAnimation m_blood_animation;
 };
 
 
