@@ -25,10 +25,9 @@ class Play_State : public Zeni::Gamestate_II {
 
 	private:
 	  void on_push();
-
-	  void on_pop();
-
 	  void on_cover();
+	  void on_uncover();
+	  void on_pop();
 
     void on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action);
 
@@ -38,8 +37,9 @@ class Play_State : public Zeni::Gamestate_II {
 
     int m_level_number;
 
-	  Zeni::Time m_current_time;
+	  Zeni::Chronometer<Zeni::Time> m_chrono;
 		float m_time_passed;
+    float m_time_to_process;
 		float m_max_time_step;  //< Optional
 		float m_max_time_steps; //< Optional
 

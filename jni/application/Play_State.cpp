@@ -23,7 +23,8 @@ Play_State::Play_State(const int &level_number)
 	: m_level_number(level_number),
   m_grid(Zeni::Point2i(50, 32), Vector2f((RES_HORIZ - 50 * TILE_SIZE) / 2.0f, (RES_VERT - 32 * TILE_SIZE) / 2.0f), false),
 	m_time_passed(0.0f),
-	m_max_time_step(1.0f / 30.0f), // make the largest physics step 1/30 of a second
+  m_time_to_process(0.0f),
+	m_max_time_step(1.0f / 60.0f), // make the largest physics step 1/30 of a second
 	m_max_time_steps(10.0f), // allow no more than 10 physics steps per frame,
   m_powerseal(0)
 {
@@ -69,16 +70,26 @@ Play_State::~Play_State() {
 
 void Play_State::on_push() {
 	get_Window().set_mouse_state(Window::MOUSE_HIDDEN);
+
+  m_chrono.start();
+}
+
+void Play_State::on_cover() {
+  get_Controllers().reset_vibration_all();
+
+  m_chrono.stop();
+}
+
+void Play_State::on_uncover() {
+  m_chrono.start();
 }
 
 void Play_State::on_pop() {
 	get_Controllers().reset_vibration_all();
 
   get_Video().set_clear_Color(Color(1.0f, 0.0f, 0.0f, 0.0f));
-}
 
-void Play_State::on_cover() {
-  get_Controllers().reset_vibration_all();
+  m_chrono.start();
 }
 
 void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, const int &action) {
@@ -137,9 +148,9 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 void Play_State::perform_logic()
 {
 	{// Update time_passed
-		const Time temp_time = get_Timer().get_time();
-		m_time_passed += temp_time.get_seconds_since(m_current_time);
-		m_current_time = temp_time;
+		const float time_passed = m_chrono.seconds();
+    m_time_to_process += time_passed - m_time_passed;
+		m_time_passed = time_passed;
 	}
 
 	/* Shrink time passed to an upper bound
@@ -148,9 +159,9 @@ void Play_State::perform_logic()
 	* minutes and then allowed to continue running, you don't want 
 	* it to pause at the physics loop for another 10 minutes.
 	*/
-	if(m_time_passed / m_max_time_step > m_max_time_steps)
+	if(m_time_to_process / m_max_time_step > m_max_time_steps)
 	{
-		m_time_passed = m_max_time_steps * m_max_time_step;
+		m_time_to_process = m_max_time_steps * m_max_time_step;
 	}
 
 	/* Constant time-step physics update
@@ -161,10 +172,10 @@ void Play_State::perform_logic()
 	* falling through floors... that sort of thing.  Keep the 
 	* max_time_step small and you are safe.
 	*/
-	while(m_time_passed > m_max_time_step)
+	while(m_time_to_process > m_max_time_step)
 	{
 		step(m_max_time_step);
-		m_time_passed -= m_max_time_step;
+		m_time_to_process -= m_max_time_step;
 	}
 
 	/* Simple physics update
@@ -181,10 +192,10 @@ void Play_State::perform_logic()
 	* it with this section (A) commented out, and then (B) not
 	* commented out.
 	*/
-	{
-		step(m_time_passed);
-		m_time_passed = 0.0f;
-	}
+	//{
+	//	step(m_time_to_process);
+	//	m_time_passed = 0.0f;
+	//}
 }
 
 void Play_State::step(const float &time_step)
