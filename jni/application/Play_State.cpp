@@ -369,9 +369,11 @@ void Play_State::step(const float &time_step)
               m_player.state = Player::STATE_ON_WALL;
             }
             else if(push_up < push_down) {
-              m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
-              m_player.state = Player::STATE_ON_GROUND;
-              m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
+              if(m_player.state != Player::STATE_ON_WALL || pgp.x == i) {
+                m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
+                m_player.state = Player::STATE_ON_GROUND;
+                m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
+              }
             }
             else {
               m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
