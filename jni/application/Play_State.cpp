@@ -332,32 +332,86 @@ void Play_State::step(const float &time_step)
             break;
 
           case TILE_UPPER_LEFT:
-            if(m_player.state != Player::STATE_ON_WALL) {
+            {
               const Collision::Line_Segment ls(Point3f(i, j + 1.0f, 0.0f), Point3f(i + 1.0f, j, 0.0f));
               const auto np = ls.nearest_point(Point3f(pcb.first.x, pcb.first.y, 0.0f));
               if(np.second >= 0.0f && np.second < 1.0f) {
                 const bool above = Vector3f(-1.0f, -1.0f, 0.0f).normalized() *
                   (Point3f(pcb.first.x, pcb.first.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
 
-                if(above) {
-                  m_player.set_position(m_player.get_position() + Vector2f(1.0f, 1.0f, 0.0f).normalized() * np.first);
-                  m_player.set_velocity(Vector2f(std::max(0.0f, m_player.get_velocity().i), std::max(0.0f, m_player.get_velocity().j)));
+                if(above && pcb.second.x > i && pcb.first.x < i + 1.0f) {
+                  float garbage;
+                  Point2f rel(modf(pcb.first.x, &garbage), modf(pcb.first.y, &garbage));
+                  if(pcb.first.x < i)
+                    rel.x = 0.0f;
+                  if(pcb.second.y < j)
+                    rel.y = 0.0f;
+
+                  const Point2f top(i + rel.x, j);
+                  const Point2f bottom(i + rel.x, j + 1.0f - rel.x);
+                  const Point2f left(i, j + rel.y);
+              
+                  const float push_left = fabs(left.x - pcb.second.x);
+                  const float push_up = fabs(top.y - pcb.second.y);
+                  const float push_down = fabs(bottom.y - pcb.first.y);
+              
+                  //if(push_left > 0.05f) {
+                    if(push_up < push_down) {
+                      m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
+                      m_player.state = Player::STATE_ON_LOWER_LEFT;
+                    }
+                    else
+                      m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
+                    m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
+                  //}
+                  //else if(push_up > 0.25f && push_down > 0.25f) {
+                  //  m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
+                  //  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+                  //  m_player.state = Player::STATE_ON_WALL;
+                  //}
                 }
               }
             }
             break;
 
           case TILE_UPPER_RIGHT:
-            if(m_player.state != Player::STATE_ON_WALL) {
+            {
               const Collision::Line_Segment ls(Point3f(i, j, 0.0f), Point3f(i + 1.0f, j + 1.0f, 0.0f));
               const auto np = ls.nearest_point(Point3f(pcb.second.x, pcb.first.y, 0.0f));
               if(np.second >= 0.0f && np.second < 1.0f) {
                 const bool above = Vector3f(1.0f, -1.0f, 0.0f).normalized() *
                   (Point3f(pcb.second.x, pcb.first.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
 
-                if(above) {
-                  m_player.set_position(m_player.get_position() + Vector2f(-1.0f, 1.0f, 0.0f).normalized() * np.first);
-                  m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), std::max(0.0f, m_player.get_velocity().j)));
+                if(above && pcb.second.x > i && pcb.first.x < i + 1.0f) {
+                  float garbage;
+                  Point2f rel(modf(pcb.second.x, &garbage), modf(pcb.first.y, &garbage));
+                  if(i + 1.0f <= pcb.second.x)
+                    rel.x = 1.0f;
+                  if(pcb.first.y < j)
+                    rel.y = 0.0f;
+
+                  const Point2f top(i + rel.x, j);
+                  const Point2f bottom(i + rel.x, j + rel.x);
+                  const Point2f right(i + 1.0f, j + rel.y);
+              
+                  const float push_right = fabs(right.x - pcb.first.x);
+                  const float push_up = fabs(top.y - pcb.second.y);
+                  const float push_down = fabs(bottom.y - pcb.first.y);
+              
+                  //if(push_right > 0.05f) {
+                    if(push_up < push_down) {
+                      m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
+                      m_player.state = Player::STATE_ON_LOWER_RIGHT;
+                    }
+                    else
+                      m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
+                    m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
+                  //}
+                  //else if(push_up > 0.25f && push_down > 0.25f) {
+                  //  m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
+                  //  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+                  //  m_player.state = Player::STATE_ON_WALL;
+                  //}
                 }
               }
             }
