@@ -21,7 +21,7 @@ enum Action_ID {ACTION_ESCAPE = 1,
 
 Play_State::Play_State(const int &level_number)
 	: m_level_number(level_number),
-  m_grid(Zeni::Point2i(50, 32), Vector2f(0.0f, 0.0f), false),
+  m_grid(Zeni::Point2i(50, 32), Vector2f((RES_HORIZ - 50 * TILE_SIZE) / 2.0f, (RES_VERT - 32 * TILE_SIZE) / 2.0f), false),
 	m_time_passed(0.0f),
 	m_max_time_step(1.0f / 30.0f), // make the largest physics step 1/30 of a second
 	m_max_time_steps(10.0f), // allow no more than 10 physics steps per frame,
