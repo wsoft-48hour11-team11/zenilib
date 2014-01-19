@@ -186,125 +186,184 @@ void Play_State::step(const float &time_step)
 
   const auto pcb = m_player.collision_box();
   const Collision::Parallelepiped player_ppd(Point3f(pcb.first), Vector3f(pcb.second.y), Vector3f(pcb.second.x), Vector3f(0,0,1.0f));
-  for(size_t j = 0; j != height; ++j) {
-    for(size_t i = 0; i != width; ++i) {
-      if(m_player.collides_with(std::make_pair(Point2f(i, j), Point2f(i + 1, j + 1)))) {
-        switch(m_grid[j][i]) {
-        case TILE_FULL:
-          {
-            const float push_left = fabs(i - pcb.second.x);
-            const float push_right = fabs((i + 1) - pcb.first.x);
-            const float push_up = fabs(j - pcb.second.y);
-            const float push_down = fabs((j + 1) - pcb.first.y);
+  for(int k = 0; k != 1; ++k) {
+    for(int j = int(pcb.first.y) - 2; j != int(pcb.second.y) + 2; ++j) {
+      if(j < 0 || j >= height)
+        continue;
 
-            if(push_up > 0.15f && push_down > 0.15f) {
-              if(push_left < push_right) {
-                m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
-                m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+      for(int i = int(pcb.first.x) - 2; i != int(pcb.second.x) + 2; ++i) {
+        if(i < 0 || i >= width)
+          continue;
+
+        if(m_player.collides_with(std::make_pair(Point2f(i, j), Point2f(i + 1, j + 1)))) {
+          switch(m_grid[j][i]) {
+          case TILE_FULL:
+            {
+              const float push_left = fabs(i - pcb.second.x);
+              const float push_right = fabs((i + 1) - pcb.first.x);
+              const float push_up = fabs(j - pcb.second.y);
+              const float push_down = fabs((j + 1) - pcb.first.y);
+
+              if(push_up > 0.15f && push_down > 0.15f) {
+                if(push_left < push_right) {
+                  m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
+                  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+                }
+                else {
+                  m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
+                  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+                }
+                m_player.state = Player::STATE_ON_WALL;
               }
-              else {
-                m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
-                m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
-              }
-              m_player.state = Player::STATE_ON_WALL;
-            }
-
-            if(push_left > 0.15f && push_right > 0.15f) {
-              if(push_up < push_down) {
-                m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
-                m_player.state = Player::STATE_ON_GROUND;
-              }
-              else
-                m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
-              m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
-            }
-          }
-          break;
-
-        case TILE_LOWER_LEFT:
-          {
-            const Collision::Line_Segment ls(Point3f(i, j, 0.0f), Point3f(i + 1.0f, j + 1.0f, 0.0f));
-            const auto np = ls.nearest_point(Point3f(pcb.first.x, pcb.second.y, 0.0f));
-            if(np.second >= 0.0f && np.second < 1.0f) {
-              const bool below = Vector3f(-1.0f, 1.0f, 0.0f).normalized() *
-                (Point3f(pcb.first.x, pcb.second.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
-
-              if(below) {
-                m_player.set_position(m_player.get_position() + Vector2f(1.0f, -1.0f, 0.0f).normalized() * np.first);
-                m_player.set_velocity(Vector2f(std::max(0.0f, m_player.get_velocity().i), std::min(0.0f, m_player.get_velocity().j)));
-                m_player.state = Player::STATE_ON_LOWER_LEFT;
+              else if(push_left > 0.15f && push_right > 0.15f) {
+                if(push_up < push_down) {
+                  m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
+                  m_player.state = Player::STATE_ON_GROUND;
+                }
+                else
+                  m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
+                m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
               }
             }
-          }
-          break;
+            break;
 
-        case TILE_LOWER_RIGHT:
-          {
-            const Collision::Line_Segment ls(Point3f(i, j + 1.0f, 0.0f), Point3f(i + 1.0f, j, 0.0f));
-            const auto np = ls.nearest_point(Point3f(pcb.second.x, pcb.second.y, 0.0f));
-            if(np.second >= 0.0f && np.second < 1.0f) {
-              const bool below = Vector3f(1.0f, 1.0f, 0.0f).normalized() *
-                (Point3f(pcb.second.x, pcb.second.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
+          case TILE_LOWER_LEFT:
+            {
+              const Collision::Line_Segment ls(Point3f(i, j, 0.0f), Point3f(i + 1.0f, j + 1.0f, 0.0f));
+              const auto np = ls.nearest_point(Point3f(pcb.first.x, pcb.second.y, 0.0f));
+              if(np.second >= 0.0f && np.second < 1.0f) {
+                const bool below = Vector3f(-1.0f, 1.0f, 0.0f).normalized() *
+                  (Point3f(pcb.first.x, pcb.second.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
 
-              if(below) {
-                m_player.set_position(m_player.get_position() + Vector2f(-1.0f, -1.0f, 0.0f).normalized() * np.first);
-                m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), std::min(0.0f, m_player.get_velocity().j)));
-                m_player.state = Player::STATE_ON_LOWER_RIGHT;
+                if(below) {
+                  float garbage;
+                  Point2f rel(modf(pcb.first.x, &garbage), modf(pcb.second.y, &garbage));
+                  if(pcb.first.x < i)
+                    rel.x = 0.0f;
+                  if(j + 1.0f <= pcb.second.y)
+                    rel.y = 1.0f;
+
+                  const Point2f top(i + rel.x, j + rel.x);
+                  const Point2f bottom(i + rel.x, j + 1.0f);
+                  const Point2f left(i, j + rel.y);
+              
+                  const float push_left = fabs(left.x - pcb.second.x);
+                  const float push_up = fabs(top.y - pcb.second.y);
+                  const float push_down = fabs(bottom.y - pcb.first.y);
+              
+                  //if(push_left > 0.05f) {
+                    if(push_up < push_down) {
+                      m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
+                      m_player.state = Player::STATE_ON_LOWER_LEFT;
+                    }
+                    else
+                      m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
+                    m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
+                  //}
+                  //else if(push_up > 0.25f && push_down > 0.25f) {
+                  //  m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
+                  //  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+                  //  m_player.state = Player::STATE_ON_WALL;
+                  //}
+                }
               }
             }
-          }
-          break;
+            break;
 
-        case TILE_UPPER_LEFT:
-          if(m_player.state != Player::STATE_ON_WALL) {
-            const Collision::Line_Segment ls(Point3f(i, j + 1.0f, 0.0f), Point3f(i + 1.0f, j, 0.0f));
-            const auto np = ls.nearest_point(Point3f(pcb.first.x, pcb.first.y, 0.0f));
-            if(np.second >= 0.0f && np.second < 1.0f) {
-              const bool above = Vector3f(-1.0f, -1.0f, 0.0f).normalized() *
-                (Point3f(pcb.first.x, pcb.first.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
+          case TILE_LOWER_RIGHT:
+            {
+              const Collision::Line_Segment ls(Point3f(i, j + 1.0f, 0.0f), Point3f(i + 1.0f, j, 0.0f));
+              const auto np = ls.nearest_point(Point3f(pcb.second.x, pcb.second.y, 0.0f));
+              if(np.second >= 0.0f && np.second < 1.0f) {
+                const bool below = Vector3f(1.0f, 1.0f, 0.0f).normalized() *
+                  (Point3f(pcb.second.x, pcb.second.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
 
-              if(above) {
-                m_player.set_position(m_player.get_position() + Vector2f(1.0f, 1.0f, 0.0f).normalized() * np.first);
-                m_player.set_velocity(Vector2f(std::max(0.0f, m_player.get_velocity().i), std::max(0.0f, m_player.get_velocity().j)));
+                if(below) {
+                  float garbage;
+                  Point2f rel(modf(pcb.second.x, &garbage), modf(pcb.second.y, &garbage));
+                  if(i + 1.0f <= pcb.second.x)
+                    rel.x = 1.0f;
+                  if(j + 1.0f <= pcb.second.y)
+                    rel.y = 1.0f;
+
+                  const Point2f top(i + rel.x, j + 1.0f - rel.x);
+                  const Point2f bottom(i + rel.x, j + 1.0f);
+                  const Point2f right(i + 1.0f, j + rel.y);
+              
+                  const float push_right = fabs(right.x - pcb.first.x);
+                  const float push_up = fabs(top.y - pcb.second.y);
+                  const float push_down = fabs(bottom.y - pcb.first.y);
+              
+                  //if(push_right > 0.05f) {
+                    if(push_up < push_down) {
+                      m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
+                      m_player.state = Player::STATE_ON_LOWER_RIGHT;
+                    }
+                    else
+                      m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
+                    m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
+                  //}
+                  //else if(push_up > 0.25f && push_down > 0.25f) {
+                  //  m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
+                  //  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+                  //  m_player.state = Player::STATE_ON_WALL;
+                  //}
+                }
               }
             }
-          }
-          break;
+            break;
 
-        case TILE_UPPER_RIGHT:
-          if(m_player.state != Player::STATE_ON_WALL) {
-            const Collision::Line_Segment ls(Point3f(i, j, 0.0f), Point3f(i + 1.0f, j + 1.0f, 0.0f));
-            const auto np = ls.nearest_point(Point3f(pcb.second.x, pcb.first.y, 0.0f));
-            if(np.second >= 0.0f && np.second < 1.0f) {
-              const bool above = Vector3f(1.0f, -1.0f, 0.0f).normalized() *
-                (Point3f(pcb.second.x, pcb.first.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
+          case TILE_UPPER_LEFT:
+            if(m_player.state != Player::STATE_ON_WALL) {
+              const Collision::Line_Segment ls(Point3f(i, j + 1.0f, 0.0f), Point3f(i + 1.0f, j, 0.0f));
+              const auto np = ls.nearest_point(Point3f(pcb.first.x, pcb.first.y, 0.0f));
+              if(np.second >= 0.0f && np.second < 1.0f) {
+                const bool above = Vector3f(-1.0f, -1.0f, 0.0f).normalized() *
+                  (Point3f(pcb.first.x, pcb.first.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
 
-              if(above) {
-                m_player.set_position(m_player.get_position() + Vector2f(-1.0f, 1.0f, 0.0f).normalized() * np.first);
-                m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), std::max(0.0f, m_player.get_velocity().j)));
+                if(above) {
+                  m_player.set_position(m_player.get_position() + Vector2f(1.0f, 1.0f, 0.0f).normalized() * np.first);
+                  m_player.set_velocity(Vector2f(std::max(0.0f, m_player.get_velocity().i), std::max(0.0f, m_player.get_velocity().j)));
+                }
               }
             }
-          }
-          break;
+            break;
 
-        case TILE_DEPOSIT:
-          for(auto it = m_power_seals.begin(); it != m_power_seals.end(); ++it) {
-            if(m_player.collides_with(std::make_pair(it->get_position(), it->get_position() + Vector2f(1.0f, 1.0f)))) {
-              m_powerseal = &*it;
-              break;
+          case TILE_UPPER_RIGHT:
+            if(m_player.state != Player::STATE_ON_WALL) {
+              const Collision::Line_Segment ls(Point3f(i, j, 0.0f), Point3f(i + 1.0f, j + 1.0f, 0.0f));
+              const auto np = ls.nearest_point(Point3f(pcb.second.x, pcb.first.y, 0.0f));
+              if(np.second >= 0.0f && np.second < 1.0f) {
+                const bool above = Vector3f(1.0f, -1.0f, 0.0f).normalized() *
+                  (Point3f(pcb.second.x, pcb.first.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
+
+                if(above) {
+                  m_player.set_position(m_player.get_position() + Vector2f(-1.0f, 1.0f, 0.0f).normalized() * np.first);
+                  m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), std::max(0.0f, m_player.get_velocity().j)));
+                }
+              }
             }
-          }
-          break;
+            break;
 
-        case TILE_SPAWN_PLAYER:
-          if(m_portal) {
-            get_Game().pop_state();
-            get_Game().push_state(new LevelIntroState(m_level_number + 1));
-          }
-          break;
+          case TILE_DEPOSIT:
+            for(auto it = m_power_seals.begin(); it != m_power_seals.end(); ++it) {
+              if(m_player.collides_with(std::make_pair(it->get_position(), it->get_position() + Vector2f(1.0f, 1.0f)))) {
+                m_powerseal = &*it;
+                break;
+              }
+            }
+            break;
 
-        default:
-          break;
+          case TILE_SPAWN_PLAYER:
+            if(m_portal) {
+              get_Game().pop_state();
+              get_Game().push_state(new LevelIntroState(m_level_number + 1));
+            }
+            break;
+
+          default:
+            break;
+          }
         }
       }
     }
