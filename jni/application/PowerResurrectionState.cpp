@@ -14,7 +14,9 @@ PowerResurrectionState::PowerResurrectionState(Zeni::Gamestate gamestate, const 
 	m_max_time_steps(10.0f), // allow no more than 10 physics steps per frame,
 	m_level_number(level_number),
 	m_power_locations(power_locations),
-	m_grid_offset(grid_offset)
+	m_grid_offset(grid_offset),
+	m_game_over(false),
+    m_death_countdown(5.0f)
 {
 	m_player = player;
 }
@@ -104,6 +106,15 @@ void PowerResurrectionState::perform_logic()
 
 void PowerResurrectionState::step(const float &time_step)
 {
+	if (m_game_over)
+	{
+		m_death_countdown -= time_step;
+		if (m_death_countdown <= 0)
+		{
+			get_Game().pop_state();
+			get_Game().push_state(new DefeatState(m_level_number));
+		}
+	}
 	bool powers_combined = true;
 	for (map<Power, Zeni::Point2f>::iterator i = m_power_locations.begin(); i != m_power_locations.end(); i++)
 	{
@@ -143,10 +154,10 @@ void PowerResurrectionState::step(const float &time_step)
 		}
 	}
 	
-	if (powers_combined)
+	if (!m_game_over && powers_combined)
 	{
-		get_Game().pop_state();
-		get_Game().push_state(new DefeatState(m_level_number));
+		m_game_over = true;
+		m_death_countdown = 5.0f;
 	}
 }
 
@@ -173,6 +184,18 @@ void PowerResurrectionState::render()
 	{
 		Point2f image_ul = Point2f(i->second.x * 20.0f, i->second.y * 20.0f) + m_grid_offset;
 		Point2f image_lr = Point2f(image_ul.x + 20.0f, image_ul.y + 20.0f);
-		render_image(power_asset(i->first), image_ul, image_lr);
+
+		if (i->second.x != m_player->get_position().x ||
+			i->second.y != m_player->get_position().y)
+		{
+			render_image(power_asset(i->first), image_ul, image_lr);
+		}
+	}
+
+	if (m_game_over)
+	{
+		Point2f image_ul = Point2f(m_player->get_position().x * 20.0f - 10.0f - 20.0f, m_player->get_position().y * 20.0f - 12.0f - 32.0f) + m_grid_offset;
+		Point2f image_lr = Point2f(image_ul.x + 128.0f, image_ul.y + 128.0f);
+		render_image("demon", image_ul, image_lr);
 	}
 }

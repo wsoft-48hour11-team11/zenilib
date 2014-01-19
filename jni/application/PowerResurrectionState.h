@@ -43,6 +43,9 @@ class PowerResurrectionState : public Zeni::Gamestate_II
 		Player* m_player;
 		std::map<Power, Zeni::Point2f> m_power_locations;
 		Zeni::Vector2f m_grid_offset;
+
+		bool m_game_over;
+		float m_death_countdown;
 };
 
 #endif
