@@ -142,7 +142,8 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 
   case ACTION_LEFT_RIGHT:
     m_player.left_right = confidence;
-    m_player.moving_right = m_player.left_right >= 0.0f;
+    if(m_player.left_right != 0.0f)
+      m_player.moving_right = m_player.left_right > 0.0f;
     break;
 
   case ACTION_DEATH_RAY:
