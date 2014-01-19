@@ -63,7 +63,7 @@ if (power == POWER_SPEED)
 
 void Player::step(const float &time_step) {
   if(jump && state != STATE_IN_AIR) {
-    set_velocity(Zeni::Vector2f(get_velocity().i, -16.0f));
+    set_velocity(Zeni::Vector2f(get_velocity().i, -24.0f));
     jump = false;
     state = STATE_IN_AIR;
   }

@@ -21,6 +21,7 @@ DefeatState::DefeatState(const int &level_number)
 
 	//Setup actions
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RETURN), 1);	//ENTER
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SPACE), 1);	//ENTER
   set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_START), 1);	//ENTER
   set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_A), 1);	//ENTER
 
