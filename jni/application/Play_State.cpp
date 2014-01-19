@@ -1,6 +1,7 @@
 #include "Play_State.h"
 
 #include "BamfCloud.h"
+#include "BamfCloudReverse.h"
 #include "Crawler.h"
 #include "PowerSelect.h"
 #include "Portal.h"
@@ -184,6 +185,7 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 		if (next_grid_pos.x >= 0 &&	next_grid_pos.x < m_grid.get_width())
 		{
 			m_animation_objects.push_back(new BamfCloud(Point2f(grid_pos.x, grid_pos.y)));
+			m_animation_objects.push_back(new BamfCloudReverse(Point2f(next_grid_pos.x, next_grid_pos.y)));
 			m_player.set_position(Point2f(next_grid_pos.x, next_grid_pos.y));
 		}
 	}
