@@ -15,6 +15,8 @@ class Enemy : public Object {
 
 		virtual void applyCollisionEffect(Player& player) = 0;
 
+    virtual void switch_direction() = 0;
+
 		bool getDeleteThis();
 		void setDeleteThis(bool deleteThis);
 

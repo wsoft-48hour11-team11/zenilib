@@ -3,6 +3,7 @@
 #include "BamfCloud.h"
 #include "BamfCloudReverse.h"
 #include "Crawler.h"
+#include "DefeatState.h"
 #include "PowerSelect.h"
 #include "Portal.h"
 #include "LevelIntroState.h"
@@ -19,8 +20,7 @@ enum Action_ID {ACTION_ESCAPE = 1,
                 ACTION_LEFT_RIGHT,
                 ACTION_DEPOSIT,
                 ACTION_DEATH_RAY,
-                ACTION_TELEPORT,
-				ACTION_FLOAT
+                ACTION_TELEPORT
                };
 
 Play_State::Play_State(const int &level_number)
@@ -31,8 +31,7 @@ Play_State::Play_State(const int &level_number)
   m_time_processed(0.0f),
 	m_max_time_step(1.0f / 60.0f), // make the largest physics step 1/30 of a second
 	m_max_time_steps(10.0f), // allow no more than 10 physics steps per frame,
-  m_powerseal(0),
-  m_float_activated(false)
+  m_powerseal(0)
 {
 	set_pausable(true);
   set_firing_missed_events(true);
@@ -47,7 +46,6 @@ Play_State::Play_State(const int &level_number)
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_j), ACTION_DEPOSIT);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_k), ACTION_DEATH_RAY);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_l), ACTION_TELEPORT);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SEMICOLON), ACTION_FLOAT);
 
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_UP), ACTION_JUMP);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), ACTION_LEFT);
@@ -55,7 +53,6 @@ Play_State::Play_State(const int &level_number)
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LCTRL), ACTION_DEPOSIT);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LSHIFT), ACTION_DEATH_RAY);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LALT), ACTION_TELEPORT);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_TAB), ACTION_FLOAT);
 
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SPACE), ACTION_JUMP);
   
@@ -175,7 +172,10 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 			do
 			{
 				next_grid_pos = Point2i(next_grid_pos.x + 1, next_grid_pos.y);
-			} while(next_grid_pos.x < m_grid.get_width() && m_grid[next_grid_pos.y][next_grid_pos.x] != TILE_EMPTY);
+			} while(next_grid_pos.x < int(m_grid.get_width()) && !(m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_EMPTY ||
+                                                             m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_DEPOSIT ||
+                                                             m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_SPAWN_CRAWLER ||
+                                                             m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_SPAWN_PLAYER));
 		}
 		else
 		{
@@ -183,27 +183,21 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 			do
 			{
 				next_grid_pos = Point2i(next_grid_pos.x - 1, next_grid_pos.y);
-			} while(next_grid_pos.x >= 0 && m_grid[next_grid_pos.y][next_grid_pos.x] != TILE_EMPTY);
+			} while(next_grid_pos.x >= 0 && !(m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_EMPTY ||
+                                        m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_DEPOSIT ||
+                                        m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_SPAWN_CRAWLER ||
+                                        m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_SPAWN_PLAYER));
 		}
 
-		if (next_grid_pos.x >= 0 &&	next_grid_pos.x < m_grid.get_width())
+		if (next_grid_pos.x >= 0 &&	next_grid_pos.x < int(m_grid.get_width()))
 		{
-			m_animation_objects.push_back(new BamfCloud(Point2f(grid_pos.x, grid_pos.y)));
-			m_animation_objects.push_back(new BamfCloudReverse(Point2f(next_grid_pos.x, next_grid_pos.y)));
-			m_player.set_position(Point2f(next_grid_pos.x, next_grid_pos.y));
+			m_animation_objects.push_back(new BamfCloud(Point2f(float(grid_pos.x), float(grid_pos.y))));
+			m_animation_objects.push_back(new BamfCloudReverse(Point2f(float(next_grid_pos.x), float(next_grid_pos.y))));
+			m_player.set_position(Point2f(float(next_grid_pos.x), float(next_grid_pos.y)));
 		}
 	}
 	break;
-  case ACTION_FLOAT:
-	  if (confidence > 0.5f)
-	  {
-		m_float_activated = true;
-	  }
-	  else
-	  {
-		  m_float_activated = false;
-	  }
-	  break;
+  
   case ACTION_DEPOSIT:
     if(confidence > 0.5f && m_powerseal && !m_player.get_powers().empty()) {
       if(m_powerseal->getPower() != POWER_EMPTY) {
@@ -290,16 +284,23 @@ void Play_State::step(const float &time_step)
   if(m_player.get_velocity().magnitude() > 10.0f)
     m_player.set_velocity(m_player.get_velocity().normalized() * 10.0f);
 
-  if (m_player.has_power(POWER_BLOOD) && m_float_activated)
-  {
-	   m_player.set_velocity(Point2f(m_player.get_velocity().x, 0.0f));
+  for (list<Enemy*>::iterator it = m_enemies.begin(); it != m_enemies.end(); ++it) {
+    (*it)->step(time_step);
+
+    {
+      const auto egp = (*it)->grid_pos();
+      const int inc = (*it)->get_velocity().i > 0.0f ? 1 : -1;
+      const Tile next = m_grid.at(egp.y).at(egp.x + inc);
+      const Tile below = m_grid.at(egp.y + 1).at(egp.x + inc);
+      if(!(next == TILE_EMPTY || next == TILE_SPAWN_CRAWLER || next == TILE_DEPOSIT) || below != TILE_FULL)
+      {
+        (*it)->switch_direction();
+      }
+    }
   }
 
-  for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
-	  (*i)->step(time_step);
-
-  for (list<DeathRay*>::iterator i = m_deathrays.begin(); i != m_deathrays.end(); i++)
-	  (*i)->step(time_step);
+  for (list<DeathRay*>::iterator it = m_deathrays.begin(); it != m_deathrays.end(); ++it)
+	  (*it)->step(time_step);
 
   for (list<AnimationObject*>::iterator i = m_animation_objects.begin(); i != m_animation_objects.end(); i++)
 	  (*i)->step(time_step);
@@ -328,8 +329,13 @@ void Play_State::step(const float &time_step)
               const float push_right = fabs((i + 1) - pcb.first.x);
               const float push_up = fabs(j - pcb.second.y);
               const float push_down = fabs((j + 1) - pcb.first.y);
+
+              const bool fl = i == 0 || m_grid[j][i - 1] == TILE_FULL;
+              const bool fr = i == m_grid.get_width() - 1 || m_grid[j][i + 1] == TILE_FULL;
+              const bool fd = j == m_grid.get_height() - 1 || m_grid[j + 1][i] == TILE_FULL;
+              const bool force_up = fl && fr && fd;
               
-              if(push_up > 0.15f && push_down > 0.15f) {
+              if(/*!force_up &&*/ push_up > 0.15f && push_down > 0.15f) {
                 if(push_left < push_right) {
                   if(pcb.second.x > i) {
                     m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
@@ -344,8 +350,8 @@ void Play_State::step(const float &time_step)
                 }
                 m_player.state = Player::STATE_ON_WALL;
               }
-              if(push_left > 0.15f && push_right > 0.15f) {
-                if(push_up < push_down) {
+              if(/*force_up ||*/ push_left > 0.15f && push_right > 0.15f) {
+                if(/*force_up ||*/ push_up < push_down) {
                   if(pcb.second.y > j) {
                     m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
                     m_player.set_velocity(Vector2f(m_player.get_velocity().i, std::min(0.0f, m_player.get_velocity().j)));
@@ -562,6 +568,11 @@ void Play_State::step(const float &time_step)
     }
   }
 
+  if(!m_player.get_powers().empty() && m_time_processed >= m_time_to_failure[m_player.get_powers().size()]) {
+    get_Game().pop_state();
+    get_Game().push_state(new DefeatState(m_level_number));
+  }
+
   //Enemy collisions with Player
   if (!m_player.has_power(POWER_SHADOW))
   {
@@ -571,8 +582,11 @@ void Play_State::step(const float &time_step)
 		  {
 			  (*i)->applyCollisionEffect(m_player);
 
-			  //Kill whatever collided with the player
-			  (*i)->setDeleteThis(true);
+			  ////Kill whatever collided with the player
+			  //(*i)->setDeleteThis(true);
+
+        get_Game().pop_state();
+        get_Game().push_state(new DefeatState(m_level_number));
 		  }
 	  }
   }
