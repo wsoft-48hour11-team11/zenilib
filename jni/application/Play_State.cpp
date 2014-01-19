@@ -100,6 +100,13 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
     m_player.right = confidence > 0.5f;
     break;
 
+  case ACTION_DEATH_RAY:
+	if (m_player.has_power(POWER_DEATHRAY) && confidence == 1.0)
+	{
+		m_deathrays.push_back(new DeathRay(m_player.get_position(), DeathRay::MOVING_RIGHT));
+	}
+	break;
+
   case ACTION_DEPOSIT:
     if(confidence > 0.5f && m_powerseal && !m_player.get_powers().empty()) {
       if(m_powerseal->getPower() != POWER_EMPTY) {
@@ -182,6 +189,10 @@ void Play_State::step(const float &time_step)
 {
   m_player.step(time_step);
   for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
+  {
+	  (*i)->step(time_step);
+  }
+  for (list<DeathRay*>::iterator i = m_deathrays.begin(); i != m_deathrays.end(); i++)
   {
 	  (*i)->step(time_step);
   }
@@ -376,7 +387,7 @@ void Play_State::step(const float &time_step)
     }
   }
 
-  //Enemy collisions
+  //Enemy collisions with Player
   if (!m_player.has_power(POWER_SHADOW))
   {
 	  for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
@@ -391,13 +402,48 @@ void Play_State::step(const float &time_step)
 	  }
   }
 
+  //Deathray collisions
+  for (list<DeathRay*>::iterator j = m_deathrays.begin(); j != m_deathrays.end(); j++)
+  {
+	  for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
+	  {
+		  if ((*j)->collides_with((*i)->getCollisionBox()))
+		  {
+			  //Apply the Deathray effect
+			  (*j)->applyCollisionEffect(*(*i));
+		  }
+	  }
+  }
+
   //Clean up any Enemies that should be deleted
-  for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
+  list<Enemy*>::iterator i = m_enemies.begin();
+  while(i != m_enemies.end())
   {
 	  if ((*i)->getDeleteThis())
 	  {
-		  delete (*i);
+		  Enemy* temp = *i;
 		  i = m_enemies.erase(i);
+		  delete temp;
+	  }
+	  else
+	  {
+		  i++;
+	  }
+  }
+  
+  //Clean up any Deathrays that should be deleted
+  list<DeathRay*>::iterator j = m_deathrays.begin();
+  while(j != m_deathrays.end())
+  {
+	  if ((*j)->getDeleteThis())
+	  {
+		  DeathRay* temp = *j;
+		  j = m_deathrays.erase(j);
+		  delete temp;
+	  }
+	  else
+	  {
+		  j++;
 	  }
   }
 
@@ -424,6 +470,10 @@ void Play_State::render() {
 	m_player.render(m_grid.get_render_offset());
 
   for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
+  {
+	  (*i)->render(m_grid.get_render_offset());
+  }
+  for (list<DeathRay*>::iterator i = m_deathrays.begin(); i != m_deathrays.end(); i++)
   {
 	  (*i)->render(m_grid.get_render_offset());
   }

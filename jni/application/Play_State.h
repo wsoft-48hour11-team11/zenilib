@@ -6,6 +6,7 @@
 #include "common.h"
 #include "player.h"
 #include "Crawler.h"
+#include "DeathRay.h"
 #include "PowerSeal.h"
 #include "GameSingleton.h"
 #include "Portal.h"
@@ -49,7 +50,7 @@ class Play_State : public Zeni::Gamestate_II {
     PowerSeal * m_powerseal;
 
 	std::list<Enemy*> m_enemies;
-	  Crawler m_crawler;
+	std::list<DeathRay*> m_deathrays;
 
     std::shared_ptr<Portal> m_portal;
 };

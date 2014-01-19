@@ -11,7 +11,6 @@ class Enemy : public Object {
 		Enemy(const Zeni::Point2f &pos);
 		~Enemy();
 
-		//Returns the offsets of the box from getPos
 		std::pair<Zeni::Point2f, Zeni::Point2f> getCollisionBox();
 
 		virtual void applyCollisionEffect(Player& player) = 0;
