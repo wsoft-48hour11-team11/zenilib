@@ -10,7 +10,8 @@ left_right(0.0f),
 moving_right(true),
 m_speed(8.0f, 8.0f),
 m_powers(POWER_LIST_SIZE, true),
-m_alive(true)
+m_alive(true),
+m_blood_animation(Zeni::Point2f())
 {
   m_powers[POWER_EMPTY] = false;
   m_powers[POWER_BLOOD] = false;
@@ -26,7 +27,8 @@ left_right(0.0f),
 moving_right(true),
 m_speed(8.0f, 8.0f),
 m_powers(POWER_LIST_SIZE, true),
-m_alive(true)
+m_alive(true), 
+m_blood_animation(position_)
 {
   m_powers[POWER_EMPTY] = false;
   m_powers[POWER_BLOOD] = false;
@@ -113,6 +115,8 @@ void Player::step(const float &time_step) {
   {
 	  set_velocity(Zeni::Vector2f(0, get_velocity().y));
 	  set_acceleration(Zeni::Vector2f(0, get_acceleration().y));
+	  m_blood_animation.set_position(get_position());
+	  m_blood_animation.step(time_step);
   }
 
   Object::step(time_step);
@@ -128,6 +132,7 @@ void Player::render(const Zeni::Vector2f &offset) {
   else
   {
 	  Object::render(offset, "deadplayer", false);
+	  m_blood_animation.render(offset);
   }
 }
 

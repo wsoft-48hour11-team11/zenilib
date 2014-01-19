@@ -80,6 +80,31 @@ The following things are unsupported:
     <filepath>textures/bamf4.png</filepath>
     <tile>0</tile>
   </bamf4>
+  <blood1>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/blood_01.png</filepath>
+    <tile>0</tile>
+  </blood1>
+  <blood2>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/blood_02.png</filepath>
+    <tile>0</tile>
+  </blood2>
+  <blood3>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/blood_03.png</filepath>
+    <tile>0</tile>
+  </blood3>
+  <blood4>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/blood_04.png</filepath>
+    <tile>0</tile>
+  </blood4>
+  <blood5>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/blood_05.png</filepath>
+    <tile>0</tile>
+  </blood5>
   <tile_full>
     <is_sprite>0</is_sprite>
     <filepath>textures/solid.png</filepath>
