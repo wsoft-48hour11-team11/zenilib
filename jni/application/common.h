@@ -25,6 +25,19 @@ inline const char * const power_asset(const Power &power) {
   }
 }
 
+inline const char * const power_name(const Power &power) {
+  switch(power) {
+    case POWER_EMPTY:          return "";
+    case POWER_BLOOD:          return "Float";
+    case POWER_DEATHRAY:       return "Deathray";
+    case POWER_SHADOW:         return "Shadow";
+    case POWER_SPEED:          return "Super Speed";
+    case POWER_TELEPORT:       return "Teleportation";
+    default:                   assert(!"Power");
+                               return 0;
+  }
+}
+
 enum Resolution {RES_HORIZ = 1280, RES_VERT = 720, TILE_SIZE = 20};
 
 enum Tile {TILE_EMPTY = 0,         // A

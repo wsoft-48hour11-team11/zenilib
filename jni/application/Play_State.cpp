@@ -19,7 +19,8 @@ enum Action_ID {ACTION_ESCAPE = 1,
                 ACTION_LEFT_RIGHT,
                 ACTION_DEPOSIT,
                 ACTION_DEATH_RAY,
-                ACTION_TELEPORT
+                ACTION_TELEPORT,
+				ACTION_FLOAT
                };
 
 Play_State::Play_State(const int &level_number)
@@ -30,7 +31,8 @@ Play_State::Play_State(const int &level_number)
   m_time_processed(0.0f),
 	m_max_time_step(1.0f / 60.0f), // make the largest physics step 1/30 of a second
 	m_max_time_steps(10.0f), // allow no more than 10 physics steps per frame,
-  m_powerseal(0)
+  m_powerseal(0),
+  m_float_activated(false)
 {
 	set_pausable(true);
   set_firing_missed_events(true);
@@ -45,6 +47,7 @@ Play_State::Play_State(const int &level_number)
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_j), ACTION_DEPOSIT);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_k), ACTION_DEATH_RAY);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_l), ACTION_TELEPORT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SEMICOLON), ACTION_FLOAT);
 
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_UP), ACTION_JUMP);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), ACTION_LEFT);
@@ -52,6 +55,7 @@ Play_State::Play_State(const int &level_number)
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LCTRL), ACTION_DEPOSIT);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LSHIFT), ACTION_DEATH_RAY);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LALT), ACTION_TELEPORT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_TAB), ACTION_FLOAT);
 
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SPACE), ACTION_JUMP);
   
@@ -190,7 +194,16 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 		}
 	}
 	break;
-  
+  case ACTION_FLOAT:
+	  if (confidence > 0.5f)
+	  {
+		m_float_activated = true;
+	  }
+	  else
+	  {
+		  m_float_activated = false;
+	  }
+	  break;
   case ACTION_DEPOSIT:
     if(confidence > 0.5f && m_powerseal && !m_player.get_powers().empty()) {
       if(m_powerseal->getPower() != POWER_EMPTY) {
@@ -276,6 +289,11 @@ void Play_State::step(const float &time_step)
   m_player.step(time_step);
   if(m_player.get_velocity().magnitude() > 10.0f)
     m_player.set_velocity(m_player.get_velocity().normalized() * 10.0f);
+
+  if (m_player.has_power(POWER_BLOOD) && m_float_activated)
+  {
+	   m_player.set_velocity(Point2f(m_player.get_velocity().x, 0.0f));
+  }
 
   for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
 	  (*i)->step(time_step);

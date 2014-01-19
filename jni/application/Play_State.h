@@ -58,6 +58,8 @@ class Play_State : public Zeni::Gamestate_II {
     std::shared_ptr<Portal> m_portal;
 
     std::vector<float> m_time_to_failure;
+
+	bool m_float_activated;
 };
 
 #endif

@@ -97,6 +97,12 @@ element in your game to enable easy skinning.
     <green>0.0</green>
     <blue>0.0</blue>
   </black>
+  <transblack>
+    <alpha>0.7</alpha>
+    <red>0.0</red>
+    <green>0.0</green>
+    <blue>0.0</blue>
+  </transblack>
   <white>
     <alpha>1.0</alpha>
     <red>1.0</red>
