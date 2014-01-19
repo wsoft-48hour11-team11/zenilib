@@ -41,6 +41,7 @@ class Play_State : public Zeni::Gamestate_II {
 	  Zeni::Chronometer<Zeni::Time> m_chrono;
 		float m_time_passed;
     float m_time_to_process;
+    float m_time_processed;
 		float m_max_time_step;  //< Optional
 		float m_max_time_steps; //< Optional
 
@@ -55,6 +56,8 @@ class Play_State : public Zeni::Gamestate_II {
 	std::list<AnimationObject*> m_animation_objects;
 
     std::shared_ptr<Portal> m_portal;
+
+    std::vector<float> m_time_to_failure;
 };
 
 #endif

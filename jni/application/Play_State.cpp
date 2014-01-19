@@ -26,11 +26,13 @@ Play_State::Play_State(const int &level_number)
   m_grid(Zeni::Point2i(50, 32), Vector2f((RES_HORIZ - 50 * TILE_SIZE) / 2.0f, (RES_VERT - 32 * TILE_SIZE) / 2.0f), false),
 	m_time_passed(0.0f),
   m_time_to_process(0.0f),
+  m_time_processed(0.0f),
 	m_max_time_step(1.0f / 60.0f), // make the largest physics step 1/30 of a second
 	m_max_time_steps(10.0f), // allow no more than 10 physics steps per frame,
   m_powerseal(0)
 {
 	set_pausable(true);
+  set_firing_missed_events(true);
   
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), ACTION_ESCAPE);
   set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_BACK), ACTION_ESCAPE);
@@ -74,6 +76,13 @@ Play_State::Play_State(const int &level_number)
   m_player.set_acceleration(Vector2f(0.0f, 32.0f));
 	
 	//m_crawler = Crawler(Point2f(512, 256), Crawler::MOVING_LEFT);
+  
+  m_time_to_failure.push_back(-1.0f);
+  m_time_to_failure.push_back(75.0f);
+  m_time_to_failure.push_back(60.0f);
+  m_time_to_failure.push_back(45.0f);
+  m_time_to_failure.push_back(30.0f);
+  m_time_to_failure.push_back(15.0f);
 
   get_Sound().set_BGM("music/48hr_music1_1");
   get_Sound().set_BGM_looping(true);
@@ -85,6 +94,8 @@ Play_State::~Play_State() {
 }
 
 void Play_State::on_push() {
+  Gamestate_II::on_push();
+
 	get_Window().set_mouse_state(Window::MOUSE_HIDDEN);
 
   m_chrono.start();
@@ -97,13 +108,15 @@ void Play_State::on_cover() {
 }
 
 void Play_State::on_uncover() {
+  Gamestate_II::on_uncover();
+
   m_chrono.start();
 }
 
 void Play_State::on_pop() {
 	get_Controllers().reset_vibration_all();
 
-  get_Video().set_clear_Color(Color(1.0f, 0.0f, 0.0f, 0.0f));
+  //get_Video().set_clear_Color(Color(1.0f, 0.0f, 0.0f, 0.0f));
 
   m_chrono.stop();
 
@@ -135,7 +148,8 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 
   case ACTION_LEFT_RIGHT:
     m_player.left_right = confidence;
-    m_player.moving_right = m_player.left_right >= 0.0f;
+    if(m_player.left_right != 0.0f)
+      m_player.moving_right = m_player.left_right > 0.0f;
     break;
 
   case ACTION_DEATH_RAY:
@@ -231,6 +245,7 @@ void Play_State::perform_logic()
 	{
 		step(m_max_time_step);
 		m_time_to_process -= m_max_time_step;
+    m_time_processed += m_max_time_step;
 	}
 
 	/* Simple physics update
@@ -250,6 +265,7 @@ void Play_State::perform_logic()
 	//{
 	//	step(m_time_to_process);
 	//	m_time_passed = 0.0f;
+  //  m_time_processed += m_time_to_process;
 	//}
 }
 
@@ -351,6 +367,7 @@ void Play_State::step(const float &time_step)
                   const float push_down = fabs(bottom.y - pcb.first.y);
               
                   //if(push_left > 0.05f) {
+                  if(pgp.x <= i) {
                     if(push_up < push_down) {
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
                       m_player.state = Player::STATE_ON_LOWER_LEFT;
@@ -358,7 +375,7 @@ void Play_State::step(const float &time_step)
                     else
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
                     m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
-                  //}
+                  }
                   //else if(push_up > 0.25f && push_down > 0.25f) {
                   //  m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
                   //  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
@@ -394,6 +411,7 @@ void Play_State::step(const float &time_step)
                   const float push_down = fabs(bottom.y - pcb.first.y);
               
                   //if(push_right > 0.05f) {
+                  if(pgp.x >= i) {
                     if(push_up < push_down) {
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
                       m_player.state = Player::STATE_ON_LOWER_RIGHT;
@@ -401,7 +419,7 @@ void Play_State::step(const float &time_step)
                     else
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
                     m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
-                  //}
+                  }
                   //else if(push_up > 0.25f && push_down > 0.25f) {
                   //  m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
                   //  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
@@ -437,6 +455,7 @@ void Play_State::step(const float &time_step)
                   const float push_down = fabs(bottom.y - pcb.first.y);
               
                   //if(push_left > 0.05f) {
+                  if(pgp.x <= i) {
                     if(push_up < push_down) {
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
                       m_player.state = Player::STATE_ON_LOWER_LEFT;
@@ -444,7 +463,7 @@ void Play_State::step(const float &time_step)
                     else
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
                     m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
-                  //}
+                  }
                   //else if(push_up > 0.25f && push_down > 0.25f) {
                   //  m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
                   //  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
@@ -480,6 +499,7 @@ void Play_State::step(const float &time_step)
                   const float push_down = fabs(bottom.y - pcb.first.y);
               
                   //if(push_right > 0.05f) {
+                  if(pgp.x >= i) {
                     if(push_up < push_down) {
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
                       m_player.state = Player::STATE_ON_LOWER_RIGHT;
@@ -487,7 +507,7 @@ void Play_State::step(const float &time_step)
                     else
                       m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
                     m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
-                  //}
+                  }
                   //else if(push_up > 0.25f && push_down > 0.25f) {
                   //  m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
                   //  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
@@ -601,7 +621,7 @@ void Play_State::step(const float &time_step)
 }
 
 void Play_State::prerender() {
-	get_Video().set_clear_Color(Color());
+	//get_Video().set_clear_Color(Color());
 }
 
 void Play_State::render() {
@@ -610,6 +630,12 @@ void Play_State::render() {
   vr.set_2d(make_pair(Point2f(), Point2f(RES_HORIZ, RES_VERT)), true);
   
 	//vr.set_2d(make_pair(Point2f(0.0f, 0.0f), Point2f(TILE_SIZE * m_grid.get_width(), TILE_SIZE * m_grid.get_height())), true);
+
+  Quadrilateral<Vertex2f_Color> bg(Vertex2f_Color(m_grid.get_render_offset(), Color()),
+                                   Vertex2f_Color(m_grid.get_render_offset() + Vector2f(0.0f, TILE_SIZE * 32.0f), Color()),
+                                   Vertex2f_Color(m_grid.get_render_offset() + Vector2f(TILE_SIZE * 50.0f, TILE_SIZE * 32.0f), Color()),
+                                   Vertex2f_Color(m_grid.get_render_offset() + Vector2f(TILE_SIZE * 50.0f, 0.0f), Color()));
+  vr.render(bg);
 
 	m_grid.render();
 
@@ -633,4 +659,9 @@ void Play_State::render() {
   {
 	  (*i)->render(m_grid.get_render_offset());
   }
+
+  if(m_player.get_powers().empty())
+    get_Fonts()["intro"].render_text("The world is safe... for now.", Point2f(), Color());
+  else
+    get_Fonts()["intro"].render_text(itoa(int(m_time_to_failure[m_player.get_powers().size()] - m_time_processed)), Point2f(), Color());
 }
