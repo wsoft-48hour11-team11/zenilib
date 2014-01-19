@@ -40,6 +40,11 @@ The following things are unsupported:
   5. Anything other than 8 bits per channel
 -->
 <Textures>
+  <crawler1>
+    <is_sprite>0</is_sprite>
+    <filepath>textures/enemy0.png</filepath>
+    <tile>0</tile>
+  </crawler1>
   <deathray>
     <is_sprite>0</is_sprite>
     <filepath>textures/DeathRay.png</filepath>
@@ -82,7 +87,7 @@ The following things are unsupported:
   </tile_spawn_player>
   <tile_spawn_crawler>
     <is_sprite>0</is_sprite>
-    <filepath>textures/player.png</filepath>
+    <filepath>textures/enemy0.png</filepath>
     <tile>0</tile>
   </tile_spawn_crawler>
   <player>

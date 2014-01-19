@@ -16,7 +16,9 @@ class Crawler : public Enemy
 		Crawler(const Zeni::Point2f &pos, const STATE &state);
 		~Crawler();
 
-		void step(const float &time_step);
+		virtual void applyCollisionEffect(Player& player);
+
+		virtual void step(const float &time_step);
 		void render(const Zeni::Vector2f &offset);
 
 	private:
