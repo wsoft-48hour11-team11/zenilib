@@ -28,6 +28,10 @@ bool Grid::load(String filepath)
         m_deposits.push_back(Point2i(i, j));
         break;
 
+	  case TILE_SPAWN_CRAWLER:
+        m_crawlers.push_back(Point2i(i, j));
+        break;
+
       default:
         break;
     }

@@ -1,5 +1,6 @@
 #include "Play_State.h"
 
+#include "Crawler.h"
 #include "PowerSelect.h"
 #include "Portal.h"
 #include "LevelIntroState.h"
@@ -45,10 +46,14 @@ Play_State::Play_State(const int &level_number)
   for(auto it = seal_positions.begin(); it != seal_positions.end(); ++it)
     m_power_seals.push_back(PowerSeal(Point2f(*it), POWER_EMPTY));
 
+  const auto crawler_positions = m_grid.get_crawlers();
+  for(auto it = crawler_positions.begin(); it != crawler_positions.end(); ++it)
+    m_enemies.push_back(new Crawler(Point2f(*it), Crawler::MOVING_LEFT));
+
 	m_player = Player(Zeni::Point2f(m_grid.get_spawn_player().x + 4.5f / 16.0f, float(m_grid.get_spawn_player().y)));
   m_player.set_acceleration(Vector2f(0.0f, 32.0f));
 	
-	m_crawler = Crawler(Point2f(512, 256), Crawler::MOVING_LEFT);
+	//m_crawler = Crawler(Point2f(512, 256), Crawler::MOVING_LEFT);
 }
 
 Play_State::~Play_State() {
@@ -173,7 +178,6 @@ void Play_State::step(const float &time_step)
   {
 	  (*i)->step(time_step);
   }
-	m_crawler.step(time_step);
 
   const size_t width = m_grid.get_width();
   const size_t height = m_grid.get_height();
@@ -309,6 +313,13 @@ void Play_State::step(const float &time_step)
   //Enemy collisions
   if (!m_player.has_power(POWER_SHADOW))
   {
+	  for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
+	  {
+		  if (m_player.collides_with((*i)->getCollisionBox()))
+		  {
+			  (*i)->applyCollisionEffect(m_player);
+		  }
+	  }
   }
 }
 
@@ -330,6 +341,10 @@ void Play_State::render() {
   
   if(m_portal)
     m_portal->render(m_grid.get_render_offset());
-	m_crawler.render(m_grid.get_render_offset());
 	m_player.render(m_grid.get_render_offset());
+
+  for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
+  {
+	  (*i)->render(m_grid.get_render_offset());
+  }
 }

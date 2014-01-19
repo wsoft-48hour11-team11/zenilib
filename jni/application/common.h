@@ -102,6 +102,10 @@ public:
     return m_deposits;
   }
 
+  const std::list<Zeni::Point2i> & get_crawlers() const {
+    return m_crawlers;
+  }
+
 private:
   void build_vbo();
 
@@ -114,6 +118,7 @@ private:
   std::shared_ptr<Zeni::Vertex_Buffer> m_grid_buffer;
 
   std::list<Zeni::Point2i> m_deposits;
+  std::list<Zeni::Point2i> m_crawlers;
 };
 
 #endif
