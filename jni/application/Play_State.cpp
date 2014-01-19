@@ -202,8 +202,9 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 			m_animation_objects.push_back(new BamfCloudReverse(Point2f(float(next_grid_pos.x), float(next_grid_pos.y))));
 			m_player.set_position(Point2f(float(next_grid_pos.x), float(next_grid_pos.y)));
 		}
+
+    Zeni::play_sound("portal", 1.0f, 0.7f);
 	}
-  Zeni::play_sound("portal", 1.0f, 0.7f);
 	break;
   
   case ACTION_DEPOSIT:
@@ -219,6 +220,8 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 
           // Wincon unlocked
           m_portal = std::make_shared<Portal>(Point2f(m_grid.get_spawn_player()));
+          Zeni::play_sound("chest", 1.0f, 0.7f);
+          Zeni::play_sound("portal", 1.0f, 0.7f);
         }
         else
           get_Game().push_state(new PowerSelect(this, &m_player, m_powerseal));
@@ -569,6 +572,8 @@ void Play_State::step(const float &time_step)
 
           case TILE_SPAWN_PLAYER:
             if(m_portal) {
+              Zeni::play_sound("portal", 1.0f, 0.7f);
+              get_Sound().update();
               get_Game().pop_state();
               get_Game().push_state(new LevelIntroState(m_level_number + 1));
             }
