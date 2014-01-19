@@ -7,6 +7,7 @@
 #include "PowerSelect.h"
 #include "Portal.h"
 #include "LevelIntroState.h"
+#include "VictoryState.h"
 
 #include <memory>
 
@@ -575,7 +576,10 @@ void Play_State::step(const float &time_step)
               Zeni::play_sound("portal", 1.0f, 0.7f);
               get_Sound().update();
               get_Game().pop_state();
-              get_Game().push_state(new LevelIntroState(m_level_number + 1));
+              if(m_level_number + 1 == GameSingleton::getInstance()->level_list.size())
+                get_Game().push_state(new VictoryState);
+              else
+                get_Game().push_state(new LevelIntroState(m_level_number + 1));
             }
             break;
 
@@ -612,7 +616,7 @@ void Play_State::step(const float &time_step)
 				m_player.killPlayer();
 				/*get_Game().pop_state();
 				get_Game().push_state(new DefeatState(m_level_number));*/
-				Zeni::play_sound("deathByEnemy", 1.0f, 0.7f);
+				Zeni::play_sound("deathByEnemy", 1.0f, 1.0f);
 			}
 		  }
 	  }

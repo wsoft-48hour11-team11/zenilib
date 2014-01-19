@@ -32,9 +32,33 @@ public:
   }
 
 private:
+  void on_push() {
+    Widget_Gamestate::on_push();
+    get_Game().controller_mouse.enabled = false;
+  }
+
+  void on_pop() {
+    get_Game().controller_mouse.enabled = true;
+    Widget_Gamestate::on_pop();
+  }
+
   void on_key(const SDL_KeyboardEvent &event) {
+    get_Game().pop_state();
     if(event.keysym.sym == SDLK_ESCAPE && event.state == SDL_PRESSED)
-      get_Game().pop_state();
+      return;
+    get_Game().push_state(new LevelIntroState());
+  }
+
+  void on_controller_button(const SDL_ControllerButtonEvent &event) {
+    if(event.state == SDL_PRESSED) {
+      if(event.button == SDL_CONTROLLER_BUTTON_A || event.button == SDL_CONTROLLER_BUTTON_START) {   
+        get_Game().pop_state();
+        get_Game().push_state(new LevelIntroState());
+      }
+      else if(event.button == SDL_CONTROLLER_BUTTON_B || event.button == SDL_CONTROLLER_BUTTON_BACK) {   
+        get_Game().pop_state();
+      }
+    }
   }
 
   void render() {
@@ -105,7 +129,7 @@ class Bootstrap {
       void on_accept() {
         Zeni::play_sound("menuButton", 1.0f, 0.7f);
         get_Sound().update();
-        get_Game().push_state(new LevelIntroState());
+        get_Game().push_state(new Instructions_State);
       }
     } play_button_2;
 
