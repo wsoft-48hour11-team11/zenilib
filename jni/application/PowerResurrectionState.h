@@ -46,6 +46,8 @@ class PowerResurrectionState : public Zeni::Gamestate_II
 
 		bool m_game_over;
 		float m_death_countdown;
+
+		float m_fade;
 };
 
 #endif

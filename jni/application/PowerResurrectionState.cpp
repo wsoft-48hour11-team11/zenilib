@@ -16,7 +16,8 @@ PowerResurrectionState::PowerResurrectionState(Zeni::Gamestate gamestate, const 
 	m_power_locations(power_locations),
 	m_grid_offset(grid_offset),
 	m_game_over(false),
-    m_death_countdown(5.0f)
+    m_death_countdown(5.0f),
+	m_fade(0.0f)
 {
 	m_player = player;
 }
@@ -109,6 +110,14 @@ void PowerResurrectionState::step(const float &time_step)
 	if (m_game_over)
 	{
 		m_death_countdown -= time_step;
+		if (m_death_countdown < 3)
+		{
+			m_fade +=time_step/2.0f;
+			if (m_fade > 1)
+			{
+				m_fade = 1.0f;
+			}
+		}
 		if (m_death_countdown <= 0)
 		{
 			get_Game().pop_state();
@@ -198,4 +207,12 @@ void PowerResurrectionState::render()
 		Point2f image_lr = Point2f(image_ul.x + 128.0f, image_ul.y + 128.0f);
 		render_image("demon", image_ul, image_lr);
 	}
+
+	Color fade = Color(m_fade, 0, 0, 0);
+	Vertex2f_Color f0(Point2f(0, 0), fade);
+	Vertex2f_Color f1(Point2f(0, RES_VERT), fade);
+	Vertex2f_Color f2(Point2f(RES_HORIZ, RES_VERT), fade);
+	Vertex2f_Color f3(Point2f(RES_HORIZ, 0), fade);
+	Quadrilateral<Vertex2f_Color> bottom(f0, f1, f2, f3);
+	vr.render(bottom);
 }
