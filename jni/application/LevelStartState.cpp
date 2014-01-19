@@ -13,9 +13,10 @@ LevelStartState::LevelStartState(const Zeni::Gamestate &gs)
   : my_gamestate(gs)
 {
 	//Setup actions
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), 3);	//ESCAPE
+  set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_BACK), 3);	//ENTER
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RETURN), 1);	//ENTER
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SPACE), 1);	//ENTER
-  set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_BACK), 1);	//ENTER
   set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_START), 1);	//ENTER
   set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_A), 1);	//ENTER
 }
@@ -48,6 +49,14 @@ void LevelStartState::on_event(const Zeni::Zeni_Input_ID &/*id*/, const float &c
 		if (confidence == 1.0)
 		{
 			get_Game().pop_state();
+		}
+	}
+	if (action == 3)
+	{
+		//ENTER
+		if (confidence == 1.0)
+		{
+      get_Game().push_Popup_Menu_State();
 		}
 	}
 }
