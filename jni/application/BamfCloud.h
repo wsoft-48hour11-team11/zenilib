@@ -3,28 +3,13 @@
 
 #include <zenilib.h>
 
-#include "object.h"
+#include "AnimationObject.h"
 
-class BamfCloud : public Object
+class BamfCloud : public AnimationObject
 {
 	public:
 		BamfCloud(const Zeni::Point2f &pos);
 		~BamfCloud();
-
-		bool getDeleteThis();
-		void setDeleteThis(bool deleteThis);
-
-		virtual void step(const float &time_step);
-		void render(const Zeni::Vector2f &offset);
-
-	protected:
-		bool m_delete;
-
-	private:
-		std::vector<Zeni::String> m_animation_frames;
-		int m_animation_index;
-		float m_frame_time;
-
 };
 
 
