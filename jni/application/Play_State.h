@@ -60,6 +60,9 @@ class Play_State : public Zeni::Gamestate_II {
     std::vector<float> m_time_to_failure;
 
 	bool m_float_activated;
+
+	bool m_game_over;
+	float m_death_countdown;
 };
 
 #endif

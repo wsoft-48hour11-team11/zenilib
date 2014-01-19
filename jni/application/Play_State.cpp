@@ -31,7 +31,9 @@ Play_State::Play_State(const int &level_number)
   m_time_processed(0.0f),
 	m_max_time_step(1.0f / 60.0f), // make the largest physics step 1/30 of a second
 	m_max_time_steps(10.0f), // allow no more than 10 physics steps per frame,
-  m_powerseal(0)
+  m_powerseal(0),
+  m_game_over(false),
+  m_death_countdown(5.0f)
 {
 	set_pausable(true);
   set_firing_missed_events(true);
@@ -126,7 +128,11 @@ void Play_State::on_pop() {
 }
 
 void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, const int &action) {
-  switch(action) {
+  if (m_game_over)
+  {
+	  return;
+  }
+	switch(action) {
   case ACTION_ESCAPE:
     if(confidence > 0.5f)
       get_Game().push_Popup_Menu_State();
@@ -280,7 +286,19 @@ void Play_State::perform_logic()
 
 void Play_State::step(const float &time_step)
 {
+  if (m_game_over)
+  {
+	  m_death_countdown -= time_step;
+	  if (m_death_countdown <= 0)
+	  {
+		  get_Game().pop_state();
+		  get_Game().push_state(new DefeatState(m_level_number));
+	  }
+  }
+
+
   m_player.step(time_step);
+  
   if(m_player.get_velocity().magnitude() > 10.0f)
     m_player.set_velocity(m_player.get_velocity().normalized() * 10.0f);
 
@@ -569,12 +587,12 @@ void Play_State::step(const float &time_step)
   }
 
   if(!m_player.get_powers().empty() && m_time_processed >= m_time_to_failure[m_player.get_powers().size()]) {
-    get_Game().pop_state();
-    get_Game().push_state(new DefeatState(m_level_number));
+    //get_Game().pop_state();
+    //get_Game().push_state(new DefeatState(m_level_number));
   }
 
   //Enemy collisions with Player
-  if (!m_player.has_power(POWER_SHADOW))
+  if (!m_player.has_power(POWER_SHADOW) && !m_player.isDead())
   {
 	  for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
 	  {
@@ -584,9 +602,11 @@ void Play_State::step(const float &time_step)
 
 			  ////Kill whatever collided with the player
 			  //(*i)->setDeleteThis(true);
-
-        get_Game().pop_state();
-        get_Game().push_state(new DefeatState(m_level_number));
+			  m_game_over = true;
+			  m_death_countdown = 2.0f;
+			  m_player.killPlayer();
+        /*get_Game().pop_state();
+        get_Game().push_state(new DefeatState(m_level_number));*/
 		  }
 	  }
   }
