@@ -5,7 +5,7 @@
 using namespace std;
 using namespace Zeni;
 
-const float MOVEMENT_SPEED = 10;
+const float MOVEMENT_SPEED = 4;
 
 Crawler::Crawler()
   : Enemy(Point2f())

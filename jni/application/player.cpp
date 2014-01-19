@@ -12,6 +12,7 @@ m_speed(8.0f, 8.0f),
 m_powers(POWER_LIST_SIZE, true)
 {
   m_powers[POWER_EMPTY] = false;
+  m_powers[POWER_BLOOD] = false;
 }
 
 Player::Player(const Zeni::Point2f &position_)
@@ -26,6 +27,7 @@ m_speed(8.0f, 8.0f),
 m_powers(POWER_LIST_SIZE, true)
 {
   m_powers[POWER_EMPTY] = false;
+  m_powers[POWER_BLOOD] = false;
 }
 
 std::vector<Power> Player::get_powers() const {
@@ -61,7 +63,7 @@ if (power == POWER_SPEED)
 
 void Player::step(const float &time_step) {
   if(jump && state != STATE_IN_AIR) {
-    set_velocity(Zeni::Vector2f(get_velocity().i, -12.0f));
+    set_velocity(Zeni::Vector2f(get_velocity().i, -16.0f));
     jump = false;
     state = STATE_IN_AIR;
   }

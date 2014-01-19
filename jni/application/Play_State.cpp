@@ -335,7 +335,7 @@ void Play_State::step(const float &time_step)
               const bool fd = j == m_grid.get_height() - 1 || m_grid[j + 1][i] == TILE_FULL;
               const bool force_up = fl && fr && fd;
               
-              if(!force_up && push_up > 0.15f && push_down > 0.15f) {
+              if(/*!force_up &&*/ push_up > 0.15f && push_down > 0.15f) {
                 if(push_left < push_right) {
                   if(pcb.second.x > i) {
                     m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
@@ -350,9 +350,9 @@ void Play_State::step(const float &time_step)
                 }
                 m_player.state = Player::STATE_ON_WALL;
               }
-              if(force_up || push_left > 0.15f && push_right > 0.15f) {
-                if(force_up || push_up < push_down) {
-                  if(force_up || pcb.second.y > j) {
+              if(/*force_up ||*/ push_left > 0.15f && push_right > 0.15f) {
+                if(/*force_up ||*/ push_up < push_down) {
+                  if(pcb.second.y > j) {
                     m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
                     m_player.set_velocity(Vector2f(m_player.get_velocity().i, std::min(0.0f, m_player.get_velocity().j)));
                     m_player.state = Player::STATE_ON_GROUND;

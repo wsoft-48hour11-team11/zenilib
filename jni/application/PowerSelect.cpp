@@ -13,12 +13,14 @@ PowerSelect::PowerSelect(Zeni::Gamestate gamestate, Player* player, PowerSeal* p
 	m_max_cursor_index = m_player->get_powers().size() - 1;
 
 	//Set up cursor
-	m_cursor.setColor("green");
+	m_cursor.setColor("blue");
 	m_cursor.setPos(Point2f(544.0f, 200.0f));
 	m_cursor.setDimensions(32.0f, 32.0f);
 	m_cursor.setThickness(4.0f);
 
 	//Setup actions
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_a), 1);	//DPAD_LEFT
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_d), 2);	//DPAD_RIGHT
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), 1);	//DPAD_LEFT
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RIGHT), 2);	//DPAD_RIGHT
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RETURN), 3);	//ENTER
