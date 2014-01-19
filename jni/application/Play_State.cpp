@@ -1,19 +1,28 @@
 #include "Play_State.h"
 
+#include "PowerSelect.h"
+#include "Portal.h"
+#include "LevelIntroState.h"
+
+#include <memory>
+
 using namespace std;
 using namespace Zeni;
 
 enum Action_ID {ACTION_ESCAPE = 1,
                 ACTION_JUMP,
                 ACTION_LEFT,
-                ACTION_RIGHT
+                ACTION_RIGHT,
+                ACTION_DEPOSIT
                };
 
-Play_State::Play_State()
-	: m_grid(Zeni::Point2i(50, 32), Vector2f(0.0f, 0.0f)),
+Play_State::Play_State(const int &level_number)
+	: m_level_number(level_number),
+  m_grid(Zeni::Point2i(50, 32), Vector2f(0.0f, 0.0f), false),
 	m_time_passed(0.0f),
 	m_max_time_step(1.0f / 30.0f), // make the largest physics step 1/30 of a second
-	m_max_time_steps(10.0f) // allow no more than 10 physics steps per frame
+	m_max_time_steps(10.0f), // allow no more than 10 physics steps per frame,
+  m_powerseal(0)
 {
 	set_pausable(true);
   
@@ -25,13 +34,19 @@ Play_State::Play_State()
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), ACTION_LEFT);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RIGHT), ACTION_RIGHT);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SPACE), ACTION_JUMP);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LCTRL), ACTION_DEPOSIT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_j), ACTION_DEPOSIT);
 
 	//m_grid.load("test_level.txt");
 	GameSingleton* sing = GameSingleton::getInstance();
 	m_grid.load(sing->level_list[0]);
 
+  const auto seal_positions = m_grid.get_deposits();
+  for(auto it = seal_positions.begin(); it != seal_positions.end(); ++it)
+    m_power_seals.push_back(PowerSeal(Point2f(*it), POWER_EMPTY));
+
 	m_player = Player(Zeni::Point2f(m_grid.get_spawn_player().x + 4.5f / 16.0f, float(m_grid.get_spawn_player().y)));
-  m_player.set_acceleration(Vector2f(0.0f, 16.0f));
+  m_player.set_acceleration(Vector2f(0.0f, 32.0f));
 	
 	m_crawler = Crawler(Point2f(512, 256), Crawler::MOVING_LEFT);
 }
@@ -42,18 +57,16 @@ Play_State::~Play_State() {
 
 void Play_State::on_push() {
 	get_Window().set_mouse_state(Window::MOUSE_HIDDEN);
-
-  get_Video().set_clear_Color(Color(1.0f, 0.0f, 0.0f, 0.0f));
 }
 
 void Play_State::on_pop() {
 	get_Controllers().reset_vibration_all();
+
+  get_Video().set_clear_Color(Color(1.0f, 0.0f, 0.0f, 0.0f));
 }
 
 void Play_State::on_cover() {
   get_Controllers().reset_vibration_all();
-
-  get_Video().set_clear_Color(Color(1.0f, 0.0f, 0.0f, 0.0f));
 }
 
 void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, const int &action) {
@@ -73,6 +86,26 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 
   case ACTION_RIGHT:
     m_player.right = confidence > 0.5f;
+    break;
+
+  case ACTION_DEPOSIT:
+    if(confidence > 0.5f && m_powerseal && !m_player.get_powers().empty()) {
+      if(m_powerseal->getPower() != POWER_EMPTY) {
+        m_player.add_power(m_powerseal->getPower());
+        m_powerseal->setPower(POWER_EMPTY);
+      }
+      else {
+        if(m_player.get_powers().size() == 1) {
+          m_powerseal->setPower(m_player.get_powers()[0]);
+          m_player.remove_power(m_player.get_powers()[0]);
+
+          // Wincon unlocked
+          m_portal = std::make_shared<Portal>(Point2f(m_grid.get_spawn_player()));
+        }
+        else
+          get_Game().push_state(new PowerSelect(this, &m_player, m_powerseal));
+      }
+    }
     break;
 
   default:
@@ -136,10 +169,16 @@ void Play_State::perform_logic()
 void Play_State::step(const float &time_step)
 {
   m_player.step(time_step);
+  for (list<Enemy*>::iterator i = m_enemies.begin(); i != m_enemies.end(); i++)
+  {
+	  (*i)->step(time_step);
+  }
 	m_crawler.step(time_step);
 
   const size_t width = m_grid.get_width();
   const size_t height = m_grid.get_height();
+
+  m_powerseal = 0;
 
   const auto pcb = m_player.collision_box();
   const Collision::Parallelepiped player_ppd(Point3f(pcb.first), Vector3f(pcb.second.y), Vector3f(pcb.second.x), Vector3f(0,0,1.0f));
@@ -148,8 +187,6 @@ void Play_State::step(const float &time_step)
       if(m_player.collides_with(std::make_pair(Point2f(i, j), Point2f(i + 1, j + 1)))) {
         switch(m_grid[j][i]) {
         case TILE_FULL:
-        case TILE_UPPER_RIGHT:
-        case TILE_UPPER_LEFT:
           {
             const float push_left = fabs(i - pcb.second.x);
             const float push_right = fabs((i + 1) - pcb.first.x);
@@ -157,17 +194,21 @@ void Play_State::step(const float &time_step)
             const float push_down = fabs((j + 1) - pcb.first.y);
 
             if(push_up > 0.15f && push_down > 0.15f) {
-              if(push_left < push_right)
+              if(push_left < push_right) {
                 m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
-              else
+                m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+              }
+              else {
                 m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
-              m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+                m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+              }
+              m_player.state = Player::STATE_ON_WALL;
             }
 
             if(push_left > 0.15f && push_right > 0.15f) {
               if(push_up < push_down) {
                 m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
-                m_player.set_can_jump(true);
+                m_player.state = Player::STATE_ON_GROUND;
               }
               else
                 m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
@@ -187,7 +228,7 @@ void Play_State::step(const float &time_step)
               if(below) {
                 m_player.set_position(m_player.get_position() + Vector2f(1.0f, -1.0f, 0.0f).normalized() * np.first);
                 m_player.set_velocity(Vector2f(std::max(0.0f, m_player.get_velocity().i), std::min(0.0f, m_player.get_velocity().j)));
-                m_player.set_can_jump(true);
+                m_player.state = Player::STATE_ON_LOWER_LEFT;
               }
             }
           }
@@ -204,9 +245,57 @@ void Play_State::step(const float &time_step)
               if(below) {
                 m_player.set_position(m_player.get_position() + Vector2f(-1.0f, -1.0f, 0.0f).normalized() * np.first);
                 m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), std::min(0.0f, m_player.get_velocity().j)));
-                m_player.set_can_jump(true);
+                m_player.state = Player::STATE_ON_LOWER_RIGHT;
               }
             }
+          }
+          break;
+
+        case TILE_UPPER_LEFT:
+          if(m_player.state != Player::STATE_ON_WALL) {
+            const Collision::Line_Segment ls(Point3f(i, j + 1.0f, 0.0f), Point3f(i + 1.0f, j, 0.0f));
+            const auto np = ls.nearest_point(Point3f(pcb.first.x, pcb.first.y, 0.0f));
+            if(np.second >= 0.0f && np.second < 1.0f) {
+              const bool above = Vector3f(-1.0f, -1.0f, 0.0f).normalized() *
+                (Point3f(pcb.first.x, pcb.first.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
+
+              if(above) {
+                m_player.set_position(m_player.get_position() + Vector2f(1.0f, 1.0f, 0.0f).normalized() * np.first);
+                m_player.set_velocity(Vector2f(std::max(0.0f, m_player.get_velocity().i), std::max(0.0f, m_player.get_velocity().j)));
+              }
+            }
+          }
+          break;
+
+        case TILE_UPPER_RIGHT:
+          if(m_player.state != Player::STATE_ON_WALL) {
+            const Collision::Line_Segment ls(Point3f(i, j, 0.0f), Point3f(i + 1.0f, j + 1.0f, 0.0f));
+            const auto np = ls.nearest_point(Point3f(pcb.second.x, pcb.first.y, 0.0f));
+            if(np.second >= 0.0f && np.second < 1.0f) {
+              const bool above = Vector3f(1.0f, -1.0f, 0.0f).normalized() *
+                (Point3f(pcb.second.x, pcb.first.y, 0.0f) - Point3f(i + 0.5f, j + 0.5f, 0.0f)) > 0.0f;
+
+              if(above) {
+                m_player.set_position(m_player.get_position() + Vector2f(-1.0f, 1.0f, 0.0f).normalized() * np.first);
+                m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), std::max(0.0f, m_player.get_velocity().j)));
+              }
+            }
+          }
+          break;
+
+        case TILE_DEPOSIT:
+          for(auto it = m_power_seals.begin(); it != m_power_seals.end(); ++it) {
+            if(m_player.collides_with(std::make_pair(it->get_position(), it->get_position() + Vector2f(1.0f, 1.0f)))) {
+              m_powerseal = &*it;
+              break;
+            }
+          }
+          break;
+
+        case TILE_SPAWN_PLAYER:
+          if(m_portal) {
+            get_Game().pop_state();
+            get_Game().push_state(new LevelIntroState(m_level_number + 1));
           }
           break;
 
@@ -215,6 +304,11 @@ void Play_State::step(const float &time_step)
         }
       }
     }
+  }
+
+  //Enemy collisions
+  if (!m_player.has_power(POWER_SHADOW))
+  {
   }
 }
 
@@ -231,6 +325,11 @@ void Play_State::render() {
 
 	m_grid.render();
 
-	m_player.render(m_grid.get_render_offset());
+  for(auto it = m_power_seals.begin(); it != m_power_seals.end(); ++it)
+    it->render(m_grid.get_render_offset());
+  
+  if(m_portal)
+    m_portal->render(m_grid.get_render_offset());
 	m_crawler.render(m_grid.get_render_offset());
+	m_player.render(m_grid.get_render_offset());
 }

@@ -11,8 +11,7 @@
 #include "player.h"
 #include "GameSingleton.h"
 #include "LevelEditor.h"
-#include "Play_State.h"
-
+#include "LevelIntroState.h"
 
 #if defined(_DEBUG) && defined(_WINDOWS)
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -90,7 +89,7 @@ class Bootstrap {
     }
   };
 
-  class Our_Title_State : public Title_State<Play_State, Instructions_State> {
+  class Our_Title_State : public Title_State<LevelIntroState, Instructions_State> {
   public:
     class Edit_Button : public Text_Button {
       Edit_Button(const Play_Button &);
@@ -109,7 +108,7 @@ class Bootstrap {
     } edit_button;
 
     Our_Title_State()
-      : Title_State<Play_State, Instructions_State>("Zenipex Library\nApplication")
+      : Title_State<LevelIntroState, Instructions_State>("Dismantled Demon\nDisconnection")
     {
       play_button.set_lower_right(Point2f(390.0f, 310.0f));
       m_widgets.lend_Widget(edit_button);
@@ -118,7 +117,7 @@ class Bootstrap {
 
   class Gamestate_One_Initializer : public Gamestate_Zero_Initializer {
     virtual Gamestate_Base * operator()() {
-      Window::set_title("zenilib Application");
+      Window::set_title("Dismantled Demon Disconnection");
 
       get_Controllers();
       get_Video();

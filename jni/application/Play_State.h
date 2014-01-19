@@ -6,14 +6,16 @@
 #include "common.h"
 #include "player.h"
 #include "Crawler.h"
+#include "PowerSeal.h"
 #include "GameSingleton.h"
+#include "Portal.h"
 
 class Play_State : public Zeni::Gamestate_II {
 	  Play_State(const Play_State &);
 	  Play_State operator=(const Play_State &);
 
 	public:
-	  Play_State();
+	  Play_State(const int &level_number = 0);
 
 	  ~Play_State();
 
@@ -33,6 +35,8 @@ class Play_State : public Zeni::Gamestate_II {
 
 	  void render();
 
+    int m_level_number;
+
 	  Zeni::Time m_current_time;
 		float m_time_passed;
 		float m_max_time_step;  //< Optional
@@ -41,7 +45,13 @@ class Play_State : public Zeni::Gamestate_II {
 	  Grid m_grid;
 	  Player m_player;
 
+    std::list<PowerSeal> m_power_seals;
+    PowerSeal * m_powerseal;
+
+	std::list<Enemy*> m_enemies;
 	  Crawler m_crawler;
+
+    std::shared_ptr<Portal> m_portal;
 };
 
 #endif

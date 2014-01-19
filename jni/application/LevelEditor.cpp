@@ -8,7 +8,7 @@ using namespace Zeni;
 using namespace std;
 
 LevelEditor::LevelEditor()
-	: m_level(Point2i(50, 32), Vector2f())
+	: m_level(Point2i(50, 32), Vector2f(), true)
 {
 	m_grid_cursor_pos = Point2i(0, 0);
 	m_cursor.setDimensions(TILE_SIZE, TILE_SIZE);

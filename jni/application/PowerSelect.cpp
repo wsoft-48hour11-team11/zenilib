@@ -1,0 +1,113 @@
+#include "PowerSelect.h"
+
+using namespace std;
+using namespace Zeni;
+
+PowerSelect::PowerSelect(Zeni::Gamestate gamestate, Player* player, PowerSeal* powerseal)
+	: m_game_state(gamestate)
+{
+	m_player = player;
+	m_powerseal = powerseal;
+
+	m_cursor_index = 0;
+	m_max_cursor_index = m_player->get_powers().size() - 1;
+
+	//Set up cursor
+	m_cursor.setColor("green");
+	m_cursor.setPos(Point2f(544.0f, 200.0f));
+	m_cursor.setDimensions(32.0f, 32.0f);
+	m_cursor.setThickness(4.0f);
+
+	//Setup actions
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), 1);	//DPAD_LEFT
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RIGHT), 2);	//DPAD_RIGHT
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RETURN), 3);	//ENTER
+}
+
+PowerSelect::~PowerSelect()
+{
+}
+
+void PowerSelect::on_cover()
+{
+}
+
+void PowerSelect::on_uncover()
+{
+}
+
+void PowerSelect::on_push()
+{
+}
+
+void PowerSelect::on_pop()
+{
+}
+
+void PowerSelect::on_event(const Zeni::Zeni_Input_ID &id, const float &confidence, const int &action)
+{
+	if (action == 1)
+	{
+		//DPAD_LEFT
+		if (confidence == 1.0)
+		{
+			if (m_cursor_index > 0)
+			{
+				--m_cursor_index;
+			}
+		}
+	}
+	if (action == 2)
+	{
+		//DPAD_RIGHT
+		if (confidence == 1.0)
+		{
+			if (m_cursor_index < m_max_cursor_index)
+			{
+				++m_cursor_index;
+			}
+		}
+	}
+	if (action == 3)
+	{
+		//ENTER
+		if (confidence == 1.0)
+		{
+			Power lost_power = m_player->get_powers()[m_cursor_index];
+			m_powerseal->setPower(lost_power);
+			m_player->remove_power(lost_power);
+			get_Game().pop_state();
+		}
+	}
+}
+
+void PowerSelect::perform_logic()
+{
+}
+
+void PowerSelect::step(const float &time_step)
+{
+}
+
+void PowerSelect::render()
+{
+	Video &vr = get_Video();
+	Colors &cr = get_Colors();
+	
+	m_game_state.render();
+
+	vr.set_2d(make_pair(Point2f(), Point2f(RES_HORIZ, RES_VERT)), true);
+
+	//Render the available powers
+	Point2f base_pos = Point2f(544.0f, 200.0f);
+	for (unsigned int i = 0; i <= m_max_cursor_index; i++)
+	{
+		Point2f image_ul = Point2f(base_pos.x + i * 48, base_pos.y);
+		Point2f image_lr = Point2f(image_ul.x + 32, image_ul.y + 32.0f);
+		vector<Power> pow = m_player->get_powers();
+		render_image(power_asset(m_player->get_powers()[i]), image_ul, image_lr);
+	}
+
+	m_cursor.setPos(Point2f(base_pos.x + m_cursor_index * 48, base_pos.y));
+	m_cursor.render();
+}
