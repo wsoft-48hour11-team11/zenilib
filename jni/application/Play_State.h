@@ -5,6 +5,7 @@
 
 #include "common.h"
 #include "player.h"
+#include "BamfCloud.h"
 #include "Crawler.h"
 #include "DeathRay.h"
 #include "PowerSeal.h"
@@ -51,6 +52,7 @@ class Play_State : public Zeni::Gamestate_II {
 
 	std::list<Enemy*> m_enemies;
 	std::list<DeathRay*> m_deathrays;
+	std::list<BamfCloud*> m_bamfclouds;
 
     std::shared_ptr<Portal> m_portal;
 };
