@@ -171,7 +171,10 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 			do
 			{
 				next_grid_pos = Point2i(next_grid_pos.x + 1, next_grid_pos.y);
-			} while(next_grid_pos.x < m_grid.get_width() && m_grid[next_grid_pos.y][next_grid_pos.x] != TILE_EMPTY);
+			} while(next_grid_pos.x < m_grid.get_width() && !(m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_EMPTY ||
+                                                        m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_DEPOSIT ||
+                                                        m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_SPAWN_CRAWLER ||
+                                                        m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_SPAWN_PLAYER));
 		}
 		else
 		{
@@ -179,7 +182,10 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
 			do
 			{
 				next_grid_pos = Point2i(next_grid_pos.x - 1, next_grid_pos.y);
-			} while(next_grid_pos.x >= 0 && m_grid[next_grid_pos.y][next_grid_pos.x] != TILE_EMPTY);
+			} while(next_grid_pos.x >= 0 && !(m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_EMPTY ||
+                                        m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_DEPOSIT ||
+                                        m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_SPAWN_CRAWLER ||
+                                        m_grid[next_grid_pos.y][next_grid_pos.x] == TILE_SPAWN_PLAYER));
 		}
 
 		if (next_grid_pos.x >= 0 &&	next_grid_pos.x < m_grid.get_width())

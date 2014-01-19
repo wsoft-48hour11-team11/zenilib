@@ -46,7 +46,7 @@ void Player::add_power(const Power &power) {
   m_powers[power] = true;
 if (power == POWER_SPEED)
 {
-	m_speed *= 4;
+	m_speed *= 2.0f;
 }
 }
 
@@ -55,7 +55,7 @@ void Player::remove_power(const Power &power) {
   m_powers[power] = false;
 if (power == POWER_SPEED)
 {
-	m_speed *= 0.25;
+	m_speed /= 2.0f;
 }
 }
 
