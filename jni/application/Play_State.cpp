@@ -147,45 +147,29 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
   case ACTION_TELEPORT:
 	if (m_player.has_power(POWER_TELEPORT) && confidence == 1.0)
 	{
+		Point2i grid_pos = m_player.grid_pos();
+		Point2i next_grid_pos = grid_pos; 
 		if (m_player.moving_right)
 		{
 			//Teleport right
-			
+			do
+			{
+				next_grid_pos = Point2i(next_grid_pos.x + 1, next_grid_pos.y);
+			} while(next_grid_pos.x < m_grid.get_width() && m_grid[next_grid_pos.y][next_grid_pos.x] != TILE_EMPTY);
 		}
 		else
 		{
 			//Teleport left
+			do
+			{
+				next_grid_pos = Point2i(next_grid_pos.x - 1, next_grid_pos.y);
+			} while(next_grid_pos.x >= 0 && m_grid[next_grid_pos.y][next_grid_pos.x] != TILE_EMPTY);
 		}
 
-		Vector2f normalized = m_player.get_velocity();
-		normalized.normalize();
-		float i = normalized.i;
-		float j = normalized.j;
-		float angle = normalized.angle_between(Vector2f(1, 0));
-		//float dead_zone = 1.0f;
-		//if (j < 0)
-		//{
-		//	if (angle <= 3.14/6)
-		//	{
-		//		//Teleport right
-		//	}
-		//	else if (angle <= 3.14/3)
-		//	{
-		//		//Teleport up-right
-		//	}
-		//	else if (angle <= 2 * 3.14/3)
-		//	{
-		//		//Teleport up
-		//	}
-		//	else if (angle <= 5 * 3.14/6)
-		//	{
-		//		//Teleport up-left
-		//	}
-		//	else
-		//	{
-		//		//Teleport left
-		//	}
-		//}
+		if (next_grid_pos.x >= 0 &&	next_grid_pos.x < m_grid.get_width())
+		{
+			m_player.set_position(Point2f(next_grid_pos.x, next_grid_pos.y));
+		}
 	}
 	break;
   
