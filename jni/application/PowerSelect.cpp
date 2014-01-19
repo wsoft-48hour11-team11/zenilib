@@ -22,6 +22,15 @@ PowerSelect::PowerSelect(Zeni::Gamestate gamestate, Player* player, PowerSeal* p
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), 1);	//DPAD_LEFT
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RIGHT), 2);	//DPAD_RIGHT
 	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RETURN), 3);	//ENTER
+	set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_DELETE), 4);	//BACK
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_BACKSPACE), 4);	//BACK
+
+  set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_DPAD_LEFT), 1);	//DPAD_LEFT
+	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_DPAD_RIGHT), 2);	//DPAD_RIGHT
+	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_START), 3);	//ENTER
+	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_A), 3);	//ENTER
+	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_BACK), 4);	//BACK
+	set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_Y), 4);	//BACK
 }
 
 PowerSelect::~PowerSelect()
@@ -78,6 +87,12 @@ void PowerSelect::on_event(const Zeni::Zeni_Input_ID &id, const float &confidenc
 			m_player->remove_power(lost_power);
 			get_Game().pop_state();
 		}
+	}
+	if (action == 4)
+	{
+		//BACK
+		if (confidence == 1.0)
+			get_Game().pop_state();
 	}
 }
 

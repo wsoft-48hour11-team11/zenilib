@@ -14,6 +14,7 @@ enum Action_ID {ACTION_ESCAPE = 1,
                 ACTION_JUMP,
                 ACTION_LEFT,
                 ACTION_RIGHT,
+                ACTION_LEFT_RIGHT,
                 ACTION_DEPOSIT,
                 ACTION_DEATH_RAY,
                 ACTION_TELEPORT
@@ -31,20 +32,30 @@ Play_State::Play_State(const int &level_number)
 	set_pausable(true);
   
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_ESCAPE), ACTION_ESCAPE);
+  set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_BACK), ACTION_ESCAPE);
+  set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_START), ACTION_ESCAPE);
+
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_w), ACTION_JUMP);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_a), ACTION_LEFT);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_d), ACTION_RIGHT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_j), ACTION_DEPOSIT);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_k), ACTION_DEATH_RAY);
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_l), ACTION_TELEPORT);
+
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_UP), ACTION_JUMP);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LEFT), ACTION_LEFT);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_RIGHT), ACTION_RIGHT);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SPACE), ACTION_JUMP);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LCTRL), ACTION_DEPOSIT);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_j), ACTION_DEPOSIT);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LCTRL), ACTION_DEPOSIT);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_k), ACTION_DEATH_RAY);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LSHIFT), ACTION_DEATH_RAY);
-  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_l), ACTION_TELEPORT);
   set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_LALT), ACTION_TELEPORT);
+
+  set_action(Zeni_Input_ID(SDL_KEYDOWN, SDLK_SPACE), ACTION_JUMP);
+  
+  set_action(Zeni_Input_ID(SDL_CONTROLLERAXISMOTION, SDL_CONTROLLER_AXIS_LEFTX), ACTION_LEFT_RIGHT);
+  set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_A), ACTION_JUMP);
+  set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_B), ACTION_DEATH_RAY);
+  set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_X), ACTION_TELEPORT);
+  set_action(Zeni_Input_ID(SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLER_BUTTON_Y), ACTION_DEPOSIT);
 
 	//m_grid.load("test_level.txt");
 	GameSingleton* sing = GameSingleton::getInstance();
@@ -62,6 +73,10 @@ Play_State::Play_State(const int &level_number)
   m_player.set_acceleration(Vector2f(0.0f, 32.0f));
 	
 	//m_crawler = Crawler(Point2f(512, 256), Crawler::MOVING_LEFT);
+
+  get_Sound().set_BGM("music/48hr_music1_1");
+  get_Sound().set_BGM_looping(true);
+  get_Sound().play_BGM();
 }
 
 Play_State::~Play_State() {
@@ -89,7 +104,9 @@ void Play_State::on_pop() {
 
   get_Video().set_clear_Color(Color(1.0f, 0.0f, 0.0f, 0.0f));
 
-  m_chrono.start();
+  m_chrono.stop();
+
+  get_Sound().stop_BGM();
 }
 
 void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, const int &action) {
@@ -106,11 +123,18 @@ void Play_State::on_event(const Zeni_Input_ID &/*id*/, const float &confidence, 
   case ACTION_LEFT:
     m_player.left = confidence > 0.5f;
     m_player.moving_right = m_player.left ? false : m_player.right;
+    m_player.left_right = m_player.right - m_player.left;
     break;
 
   case ACTION_RIGHT:
     m_player.right = confidence > 0.5f;
     m_player.moving_right = m_player.right ? true : !m_player.left;
+    m_player.left_right = m_player.right - m_player.left;
+    break;
+
+  case ACTION_LEFT_RIGHT:
+    m_player.left_right = confidence;
+    m_player.moving_right = m_player.left_right >= 0.0f;
     break;
 
   case ACTION_DEATH_RAY:
@@ -237,23 +261,33 @@ void Play_State::step(const float &time_step)
 
               if(push_up > 0.15f && push_down > 0.15f) {
                 if(push_left < push_right) {
-                  m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
-                  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+                  if(pcb.second.x > i) {
+                    m_player.set_position(m_player.get_position() + Vector2f(-push_left, 0.0f));
+                    m_player.set_velocity(Vector2f(std::min(0.0f, m_player.get_velocity().i), m_player.get_velocity().j));
+                  }
                 }
                 else {
-                  m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
-                  m_player.set_velocity(Vector2f(0.0f, m_player.get_velocity().j));
+                  if(pcb.first.x < i + 1.0f) {
+                    m_player.set_position(m_player.get_position() + Vector2f(push_right, 0.0f));
+                    m_player.set_velocity(Vector2f(std::max(0.0f, m_player.get_velocity().i), m_player.get_velocity().j));
+                  }
                 }
                 m_player.state = Player::STATE_ON_WALL;
               }
               else if(push_left > 0.15f && push_right > 0.15f) {
                 if(push_up < push_down) {
-                  m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
-                  m_player.state = Player::STATE_ON_GROUND;
+                  if(pcb.second.y > j) {
+                    m_player.set_position(m_player.get_position() + Vector2f(0.0f, -push_up));
+                    m_player.set_velocity(Vector2f(m_player.get_velocity().i, std::min(0.0f, m_player.get_velocity().j)));
+                    m_player.state = Player::STATE_ON_GROUND;
+                  }
                 }
-                else
-                  m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
-                m_player.set_velocity(Vector2f(m_player.get_velocity().i, 0.0f));
+                else {
+                  if(pcb.first.y < j + 1.0f) {
+                    m_player.set_position(m_player.get_position() + Vector2f(0.0f, push_down));
+                    m_player.set_velocity(Vector2f(m_player.get_velocity().i, std::max(0.0f, m_player.get_velocity().j)));
+                  }
+                }
               }
             }
             break;
